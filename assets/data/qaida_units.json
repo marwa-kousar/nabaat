@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "completedUnitCount": 1,
+    "totalUnitCount": 4
+  },
+  "units": [
+    {
+      "num": "0",
+      "titleEn": "Letters & shapes",
+      "titleAr": "الْحُرُوفُ وَالْأَشْكَالُ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#c9b318",
+      "iconRadius": 15,
+      "numColor": "#ffffff",
+      "arabicColor": "#5c4f00",
+      "locked": false,
+      "active": true,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "What is the Qa’ida?",
+          "titleAr": "مَا هِيَ الْقَاعِدَةُ؟",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 2,
+          "introDescription": "Meet the Arabic letters and how they connect in simple words. (الْحُرُوفُ)"
+        },
+        {
+          "num": 2,
+          "title": "Single letters",
+          "titleAr": "الْحُرُوفُ الْمُفْرَدَةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Single letters (الْحُرُوفُ الْمُفْرَدَةُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "1",
+      "titleEn": "Vowels (Harakat)",
+      "titleAr": "الْحَرَكَاتُ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Fatha",
+          "titleAr": "الْفَتْحَةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Fatha (الْفَتْحَةُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "2",
+      "titleEn": "Joined letters",
+      "titleAr": "الْحُرُوفُ الْمُتَّصِلَةُ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Ba → Ta",
+          "titleAr": "مِنْ بَاءٍ إِلَى تَاءٍ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Ba → Ta (مِنْ بَاءٍ إِلَى تَاءٍ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "3",
+      "titleEn": "Short words",
+      "titleAr": "الْكَلِمَاتُ الْقَصِيرَةُ",
+      "tag": "Intermediate",
+      "tagColor": "#ff8c1a",
+      "leafIntermediate": true,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Two-letter blends",
+          "titleAr": "الْوَصْلُ بَيْنَ حَرْفَيْنِ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Two-letter blends (الْوَصْلُ بَيْنَ حَرْفَيْنِ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    }
+  ]
+}

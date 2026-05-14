@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "completedUnitCount": 1,
+    "totalUnitCount": 4
+  },
+  "units": [
+    {
+      "num": "0",
+      "titleEn": "Roots & patterns",
+      "titleAr": "الْجُذُورُ وَالْأَوْزَانُ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#c97a2e",
+      "iconRadius": 15,
+      "numColor": "#ffffff",
+      "arabicColor": "#5c3a12",
+      "locked": false,
+      "active": true,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "What is Sarf?",
+          "titleAr": "مَا هُوَ الصَّرْفُ؟",
+          "done": false,
+          "estMinutes": 6,
+          "conceptsCount": 3,
+          "introDescription": "Discover how Arabic roots and patterns shape word meanings. (الْجِذْرُ)"
+        },
+        {
+          "num": 2,
+          "title": "The three-letter root",
+          "titleAr": "الْجِذْرُ الثُّلَاثِيُّ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: The three-letter root (الْجِذْرُ الثُّلَاثِيُّ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 3,
+          "title": "Scale overview",
+          "titleAr": "نَظْرَةٌ عَلَى الْأَوْزَانِ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Scale overview (نَظْرَةٌ عَلَى الْأَوْزَانِ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "1",
+      "titleEn": "Past tense (Māḍī)",
+      "titleAr": "الْمَاضِي",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Sound verbs",
+          "titleAr": "الْأَفْعَالُ السَّالِمَةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Sound verbs (الْأَفْعَالُ السَّالِمَةُ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 2,
+          "title": "Weak letters",
+          "titleAr": "الْأَحْرُفُ الْعِلَّةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Weak letters (الْأَحْرُفُ الْعِلَّةُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "2",
+      "titleEn": "Present (Muḍāri')",
+      "titleAr": "الْمُضَارِعُ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Prefixes",
+          "titleAr": "أَدَوَاتُ الْمُضَارِعِ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Prefixes (أَدَوَاتُ الْمُضَارِعِ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "3",
+      "titleEn": "Derived forms",
+      "titleAr": "الْأَبْنِيَةُ",
+      "tag": "Intermediate",
+      "tagColor": "#ff8c1a",
+      "leafIntermediate": true,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Form II",
+          "titleAr": "الْبَابُ الثَّانِي",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Form II (الْبَابُ الثَّانِي). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    }
+  ]
+}

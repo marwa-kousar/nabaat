@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "completedUnitCount": 1,
+    "totalUnitCount": 5
+  },
+  "units": [
+    {
+      "num": "0",
+      "titleEn": "Introduction",
+      "titleAr": "أَسَاسِيَّاتُ النَّحْوِ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#599e80",
+      "iconRadius": 15,
+      "numColor": "#ffffff",
+      "arabicColor": "#086b59",
+      "locked": false,
+      "active": true,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "What is Nahw?",
+          "titleAr": "مَا هُوَ النَّحْوُ؟",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "The science of Arabic grammar — learn how words connect and sentences come alive."
+        },
+        {
+          "num": 2,
+          "title": "Types of Arabic Words",
+          "titleAr": "أَنْوَاعُ الْكَلِمَاتِ الْعَرَبِيَّةِ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Types of Arabic Words (أَنْوَاعُ الْكَلِمَاتِ الْعَرَبِيَّةِ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 3,
+          "title": "Basic Sentence Structure",
+          "titleAr": "بُنْيَةُ الْجُمْلَةِ الْأَسَاسِيَّةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Basic Sentence Structure (بُنْيَةُ الْجُمْلَةِ الْأَسَاسِيَّةُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "1",
+      "titleEn": "Sentence Basics",
+      "titleAr": "أَسَاسِيَّاتُ الْجُمْلَةِ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "The Nominal Sentence",
+          "titleAr": "الْجُمْلَةُ الْاسْمِيَّةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: The Nominal Sentence (الْجُمْلَةُ الْاسْمِيَّةُ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 2,
+          "title": "The Verbal Sentence",
+          "titleAr": "الْجُمْلَةُ الْفِعْلِيَّةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: The Verbal Sentence (الْجُمْلَةُ الْفِعْلِيَّةُ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 3,
+          "title": "Subject & Predicate",
+          "titleAr": "الْمُبْتَدَأُ وَالْخَبَرُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Subject & Predicate (الْمُبْتَدَأُ وَالْخَبَرُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "2",
+      "titleEn": "Case Endings",
+      "titleAr": "عَلَامَاتُ الْإِعْرَابِ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Nominative Case (Raf')",
+          "titleAr": "الْمَرْفُوعُ (الرَّفْعُ)",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Nominative Case (Raf') (الْمَرْفُوعُ (الرَّفْعُ)). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 2,
+          "title": "Accusative Case (Nasb)",
+          "titleAr": "الْمَنْصُوبُ (النَّصْبُ)",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Accusative Case (Nasb) (الْمَنْصُوبُ (النَّصْبُ)). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 3,
+          "title": "Genitive Case (Jarr)",
+          "titleAr": "الْمَجْرُورُ (الْجَرُّ)",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Genitive Case (Jarr) (الْمَجْرُورُ (الْجَرُّ)). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "3",
+      "titleEn": "Verb Forms",
+      "titleAr": "أَبْنِيَةُ الْأَفْعَالِ",
+      "tag": "Intermediate",
+      "tagColor": "#ff8c1a",
+      "leafIntermediate": true,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Past Tense (Māḍī)",
+          "titleAr": "الْفِعْلُ الْمَاضِي",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Past Tense (Māḍī) (الْفِعْلُ الْمَاضِي). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 2,
+          "title": "Present Tense (Muḍāri')",
+          "titleAr": "الْفِعْلُ الْمُضَارِعُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Present Tense (Muḍāri') (الْفِعْلُ الْمُضَارِعُ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 3,
+          "title": "Command Form (Amr)",
+          "titleAr": "فِعْلُ الْأَمْرِ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Command Form (Amr) (فِعْلُ الْأَمْرِ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "4",
+      "titleEn": "Pronouns",
+      "titleAr": "الضَّمَائِرُ",
+      "tag": "Intermediate",
+      "tagColor": "#ff8c1a",
+      "leafIntermediate": true,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Detached Pronouns",
+          "titleAr": "الضَّمَائِرُ الْمُنْفَصِلَةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Detached Pronouns (الضَّمَائِرُ الْمُنْفَصِلَةُ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 2,
+          "title": "Attached Pronouns",
+          "titleAr": "الضَّمَائِرُ الْمُتَّصِلَةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Attached Pronouns (الضَّمَائِرُ الْمُتَّصِلَةُ). Guided steps and quick checks help you apply what you learn."
+        },
+        {
+          "num": 3,
+          "title": "Hidden Pronouns",
+          "titleAr": "الضَّمَائِرُ الْمُسْتَتِرَةُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Hidden Pronouns (الضَّمَائِرُ الْمُسْتَتِرَةُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "nabaat-qf-backend",
+  "private": true,
+  "description": "Token exchange for Quran Foundation OAuth (confidential client). Run locally and set EXPO_PUBLIC_QF_BACKEND_URL in the Expo app.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}

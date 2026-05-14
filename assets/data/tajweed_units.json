@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "completedUnitCount": 1,
+    "totalUnitCount": 4
+  },
+  "units": [
+    {
+      "num": "0",
+      "titleEn": "Foundations",
+      "titleAr": "الْأَسَاسِيَّاتُ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#8b5cf6",
+      "iconRadius": 15,
+      "numColor": "#ffffff",
+      "arabicColor": "#3d2a6b",
+      "locked": false,
+      "active": true,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "What is Tajweed?",
+          "titleAr": "مَا هُوَ التَّجْوِيدُ؟",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 2,
+          "introDescription": "Learn the rules that beautify Qur’anic recitation, starting with الْمَخَارِج."
+        },
+        {
+          "num": 2,
+          "title": "Makharij overview",
+          "titleAr": "نَظْرَةٌ عَلَى مَخَارِجِ الْحُرُوفِ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Makharij overview (نَظْرَةٌ عَلَى مَخَارِجِ الْحُرُوفِ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "1",
+      "titleEn": "Noon & Meem",
+      "titleAr": "النُّونُ وَالْمِيمُ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Ikhfa",
+          "titleAr": "الْإِخْفَاءُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Ikhfa (الْإِخْفَاءُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "2",
+      "titleEn": "Madd",
+      "titleAr": "الْمَدُّ",
+      "tag": "Beginner",
+      "tagColor": "#60a85b",
+      "leafIntermediate": false,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Natural madd",
+          "titleAr": "الْمَدُّ الطَّبِيعِيُّ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Natural madd (الْمَدُّ الطَّبِيعِيُّ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    },
+    {
+      "num": "3",
+      "titleEn": "Stopping (Waqf)",
+      "titleAr": "الْوَقْفُ",
+      "tag": "Intermediate",
+      "tagColor": "#ff8c1a",
+      "leafIntermediate": true,
+      "iconBg": "#d5d6d6",
+      "iconRadius": 9,
+      "numColor": "#737373",
+      "arabicColor": "#737373",
+      "locked": true,
+      "active": false,
+      "lessons": [
+        {
+          "num": 1,
+          "title": "Permitted stops",
+          "titleAr": "الْوُقُوفُ الْمُبَاحُ",
+          "done": false,
+          "estMinutes": 5,
+          "conceptsCount": 3,
+          "introDescription": "In this lesson: Permitted stops (الْوُقُوفُ الْمُبَاحُ). Guided steps and quick checks help you apply what you learn."
+        }
+      ]
+    }
+  ]
+}
