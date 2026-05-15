@@ -13,9 +13,9 @@ const KTB = 'ك ت ب';
 
 /** Heuristic + curated notes — extend per lesson or from CMS later. */
 export function teachingForWord(word: AyahWord, verseKey: string): WordTeaching {
-  const t = word.text.replace(/\u0640/g, '').trim();
-  const trans = word.meaning.toLowerCase();
-  const translit = word.transliteration.toLowerCase();
+  const t = (word.text ?? '').replace(/\u0640/g, '').trim();
+  const trans = (word.meaning ?? '').toLowerCase();
+  const translit = (word.transliteration ?? '').toLowerCase();
 
   // كُتِبَ (passive verb, root k-t-b)
   if (t === 'كُتِبَ' || translit.includes('kutib')) {

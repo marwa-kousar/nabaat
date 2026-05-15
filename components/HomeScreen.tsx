@@ -211,70 +211,74 @@ export function HomeScreen({
     return <View style={styles.root} />;
   }
 
+  const hidePathwayHeader = activeTab === 'seed' || activeTab === 'user';
+
   return (
     <View style={styles.root}>
-      {unitsLoading && (
+      {unitsLoading && activeTab === 'home' && (
         <View style={[styles.loadingOverlay, { paddingTop: insets.top }]}>
           <ActivityIndicator size="large" color={theme.primary} accessibilityLabel="Loading units" />
         </View>
       )}
 
-      <View
-        style={[
-          styles.stickyTopBar,
-          {
-            paddingTop: insets.top,
-          },
-        ]}
-      >
-        <View style={[styles.header, { paddingHorizontal: r(22, s), paddingTop: r(10, s), paddingBottom: r(8, s) }]}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Active path: ${theme.titleEn}. Tap to switch course`}
-            style={styles.headerLeft}
-            onPress={() => setPathModalOpen(true)}
-          >
-            <View
-              style={[
-                styles.nunBox,
-                { width: letterBox, height: letterBox, borderRadius: r(13, s), backgroundColor: theme.swatchBg },
-              ]}
+      {!hidePathwayHeader ? (
+        <View
+          style={[
+            styles.stickyTopBar,
+            {
+              paddingTop: insets.top,
+            },
+          ]}
+        >
+          <View style={[styles.header, { paddingHorizontal: r(22, s), paddingTop: r(10, s), paddingBottom: r(8, s) }]}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Active path: ${theme.titleEn}. Tap to switch course`}
+              style={styles.headerLeft}
+              onPress={() => setPathModalOpen(true)}
             >
-              <PathSwatchLetter
-                letterIcon={pathOption?.letterIcon}
-                letter={pathOption?.letter}
-                width={letterIconSize}
-                height={letterIconSize}
-              />
-            </View>
-            <Text
-              style={[styles.pathTitle, { fontSize: r(24, s), lineHeight: r(28, s), marginLeft: r(10, s), color: theme.headerText }]}
-            >
-              {theme.titleEn}
-            </Text>
-            <Text style={[styles.chevronPath, { fontSize: r(18, s), marginLeft: r(2, s), color: theme.headerText }]}>⌄</Text>
-          </Pressable>
+              <View
+                style={[
+                  styles.nunBox,
+                  { width: letterBox, height: letterBox, borderRadius: r(13, s), backgroundColor: theme.swatchBg },
+                ]}
+              >
+                <PathSwatchLetter
+                  letterIcon={pathOption?.letterIcon}
+                  letter={pathOption?.letter}
+                  width={letterIconSize}
+                  height={letterIconSize}
+                />
+              </View>
+              <Text
+                style={[styles.pathTitle, { fontSize: r(24, s), lineHeight: r(28, s), marginLeft: r(10, s), color: theme.headerText }]}
+              >
+                {theme.titleEn}
+              </Text>
+              <Text style={[styles.chevronPath, { fontSize: r(18, s), marginLeft: r(2, s), color: theme.headerText }]}>⌄</Text>
+            </Pressable>
 
-          <View style={styles.headerRight}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Current streak, ${displayStreak} days`}
-              style={[styles.statPill, { gap: r(4, s) }]}
-            >
-              <HomeStreakFlame width={r(20, s)} height={r(20, s)} />
-              <Text style={[styles.streakNum, { fontSize: r(16, s) }]}>{displayStreak}</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Nabaat points, ${displayGrowthPoints}`}
-              style={[styles.statPill, { gap: r(4, s) }]}
-            >
-              <HomePointsLeaf width={r(20, s)} height={r(20, s)} />
-              <Text style={[styles.pointsNum, { fontSize: r(16, s) }]}>{displayGrowthPoints}</Text>
-            </Pressable>
+            <View style={styles.headerRight}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Current streak, ${displayStreak} days`}
+                style={[styles.statPill, { gap: r(4, s) }]}
+              >
+                <HomeStreakFlame width={r(20, s)} height={r(20, s)} />
+                <Text style={[styles.streakNum, { fontSize: r(16, s) }]}>{displayStreak}</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Nabaat points, ${displayGrowthPoints}`}
+                style={[styles.statPill, { gap: r(4, s) }]}
+              >
+                <HomePointsLeaf width={r(20, s)} height={r(20, s)} />
+                <Text style={[styles.pointsNum, { fontSize: r(16, s) }]}>{displayGrowthPoints}</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
-      </View>
+      ) : null}
 
       <View style={styles.mainPane}>
         {activeTab === 'home' ? (
@@ -618,7 +622,16 @@ export function HomeScreen({
             }}
           />
         ) : (
-          <View style={[styles.comingSoonPane, { paddingBottom: scrollBottomPad, paddingHorizontal: r(28, s) }]}>
+          <View
+            style={[
+              styles.comingSoonPane,
+              {
+                paddingBottom: scrollBottomPad,
+                paddingHorizontal: r(28, s),
+                paddingTop: activeTab === 'user' ? insets.top + r(12, s) : 0,
+              },
+            ]}
+          >
             <Text style={[styles.comingSoonTitle, { fontSize: r(18, s), color: theme.primaryDark }]}>Coming soon</Text>
             <Text style={[styles.comingSoonBody, { fontSize: r(14, s), lineHeight: r(21, s), marginTop: r(10, s), color: '#64748b' }]}>
               {activeTab === 'bolt'
@@ -652,9 +665,8 @@ export function HomeScreen({
             { key: 'chat' as TabKey, label: 'Chat', Icon: TabChatIcon },
             { key: 'user' as TabKey, label: 'Profile', Icon: TabUserIcon },
           ] as const satisfies ReadonlyArray<{ key: TabKey; label: string; Icon: ComponentType<TabBarIconProps> }>
-        ).map((item, i, arr) => {
+        ).map((item) => {
           const isActive = activeTab === item.key;
-          const isSeed = item.key === 'seed';
           const iconSize = r(24, s);
           const TabIcon = item.Icon;
           return (
@@ -667,22 +679,13 @@ export function HomeScreen({
               style={({ pressed }) => [
                 styles.tabItem,
                 {
-                  marginRight: i < arr.length - 1 ? r(-40, s) : 0,
-                  paddingHorizontal: r(25, s),
+                  flex: 1,
                   paddingVertical: r(10, s),
                   opacity: pressed ? 0.75 : 1,
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.tabIconWrap,
-                  { padding: r(12, s), borderRadius: r(40, s) },
-                  !isActive && isSeed && { borderWidth: r(1.5, s), borderColor: '#9db2ce' },
-                ]}
-              >
-                <TabIcon size={iconSize} active={isActive} color={theme.primary} />
-              </View>
+              <TabIcon size={iconSize} active={isActive} color={theme.primary} />
             </Pressable>
           );
         })}
@@ -849,7 +852,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   tabItem: { alignItems: 'center', justifyContent: 'center' },
-  tabIconWrap: { alignItems: 'center', justifyContent: 'center' },
 
   modalRoot: {
     flex: 1,
