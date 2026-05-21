@@ -36,11 +36,21 @@ function requireEnv(res) {
   return true;
 }
 
+function tokenAuthHeader() {
+  // Quran Foundation / Ory Hydra expects token_endpoint_auth_method: client_secret_basic
+  // (credentials in Authorization header), not client_secret_post (body params).
+  const token = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`, 'utf8').toString('base64');
+  return `Basic ${token}`;
+}
+
 async function postToken(bodyParams) {
   const body = new URLSearchParams(bodyParams);
   const r = await fetch(TOKEN_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: tokenAuthHeader(),
+    },
     body,
   });
   const text = await r.text();
@@ -64,8 +74,6 @@ app.post('/api/auth/qf/exchange', async (req, res) => {
     grant_type: 'authorization_code',
     code,
     redirect_uri: redirectUri,
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
     code_verifier: codeVerifier,
   });
 
@@ -92,8 +100,6 @@ app.post('/api/auth/qf/refresh', async (req, res) => {
   const { ok, status, data } = await postToken({
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
   });
 
   if (!ok) {
@@ -113,6 +119,6 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, prelive: USE_PRELIVE });
 });
 
-app.listen(PORT, () => {
-  console.log(`QF token helper listening on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`QF token helper listening on port ${PORT} (reachable at http://localhost:${PORT} or http://<this-machine-LAN-ip>:${PORT})`);
 });

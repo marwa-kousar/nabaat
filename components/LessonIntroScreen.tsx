@@ -11,10 +11,9 @@ import {
 import { Nunito_700Bold, Nunito_800ExtraBold, useFonts as useNunito } from '@expo-google-fonts/nunito';
 import { useMemo } from 'react';
 import {
-  Image,
+
   ImageSourcePropType,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,6 +21,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
+import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import LessonIntroIconBack from '../assets/lesson-intro/icon-back.svg';
@@ -34,6 +34,8 @@ import { defaultLessonHeroBackground } from '../lib/lessonIntroAssets';
 import { buildLessonIntroModel, getDefaultLessonIntro, type LessonIntroModel } from '../lib/lessonIntroDefaults';
 import { getLessonAtIndices } from '../lib/loadUnits';
 import { pathThemeOf } from '../lib/pathTheme';
+
+import { UiTapPressable } from './UiTapPressable';
 
 const FIGMA_W = 393;
 
@@ -119,14 +121,14 @@ export function LessonIntroScreen({
   return (
     <View style={styles.root}>
       <View style={{ height: heroHeight + insets.top }}>
-        <Image
+        <AppImage
           source={heroSource}
           style={[styles.heroImage, { height: heroHeight + insets.top + r(40, s), top: -insets.top }]}
           resizeMode="cover"
           accessibilityIgnoresInvertColors
         />
 
-        <Pressable
+        <UiTapPressable
           accessibilityRole="button"
           accessibilityLabel="Go back"
           onPress={onBack}
@@ -144,7 +146,7 @@ export function LessonIntroScreen({
           ]}
         >
           <LessonIntroIconBack width={r(22, s)} height={r(22, s)} />
-        </Pressable>
+        </UiTapPressable>
       </View>
 
       <View
@@ -216,7 +218,7 @@ export function LessonIntroScreen({
           </View>
         </ScrollView>
 
-        <Pressable
+        <UiTapPressable
           accessibilityRole="button"
           accessibilityLabel={ctaA11y}
           onPress={onBegin}
@@ -234,7 +236,7 @@ export function LessonIntroScreen({
           ]}
         >
           <Text style={[styles.ctaText, { fontSize: r(18, s) }]}>{ctaLabel}</Text>
-        </Pressable>
+        </UiTapPressable>
       </View>
     </View>
   );

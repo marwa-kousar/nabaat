@@ -14,7 +14,6 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,6 +23,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { LearningPathId } from './ChoosePathScreen';
+import { UiTapPressable } from './UiTapPressable';
 import HomePointsLeaf from '../assets/home-points-leaf.svg';
 import {
   getExampleLessonSteps,
@@ -47,7 +47,7 @@ export type ExampleLessonFlowScreenProps = {
   lessonTitleEn: string;
   lessonTitleAr?: string;
   onExit: () => void;
-  onComplete: () => void;
+  onComplete: (totalSeeds: number) => void;
 };
 
 export function ExampleLessonFlowScreen({
@@ -124,12 +124,16 @@ export function ExampleLessonFlowScreen({
   }, [step, canAdvance, steps.length, stepIndex]);
 
   const handleComplete = useCallback(() => {
+    const bonus = completionBonusRef.current ? 0 : NABAAT_COMPLETION_BONUS;
     if (!completionBonusRef.current) {
       completionBonusRef.current = true;
-      setNabaatPoints((p) => p + NABAAT_COMPLETION_BONUS);
     }
-    onComplete();
-  }, [onComplete]);
+    const total = nabaatPoints + bonus;
+    if (bonus > 0) {
+      setNabaatPoints((p) => p + bonus);
+    }
+    onComplete(total);
+  }, [nabaatPoints, onComplete]);
 
   const goBack = useCallback(() => {
     if (stepIndex <= 0) {
@@ -206,7 +210,7 @@ export function ExampleLessonFlowScreen({
   return (
     <View style={styles.root}>
       <View style={[styles.header, { paddingTop: insets.top + r(8, s), paddingHorizontal: padH }]}>
-        <Pressable
+        <UiTapPressable
           accessibilityRole="button"
           accessibilityLabel={stepIndex === 0 ? 'Exit lesson' : 'Previous step'}
           onPress={goBack}
@@ -214,7 +218,7 @@ export function ExampleLessonFlowScreen({
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
           <Text style={[styles.headerBtnText, { fontSize: r(16, s), color: theme.primaryDark }]}>‹</Text>
-        </Pressable>
+        </UiTapPressable>
         <View style={[styles.headerCenter, { paddingHorizontal: r(6, s) }]}>
           <Text
             style={[styles.headerLessonTitle, { fontSize: r(16, s), color: theme.primaryDark }]}
@@ -398,7 +402,7 @@ export function ExampleLessonFlowScreen({
               {step.cards.map((card, idx) => {
                 const open = revealedIds.has(card.id);
                 return (
-                  <Pressable
+                  <UiTapPressable
                     key={card.id}
                     accessibilityRole="button"
                     accessibilityState={{ expanded: open }}
@@ -435,7 +439,7 @@ export function ExampleLessonFlowScreen({
                         Tap to reveal
                       </Text>
                     )}
-                  </Pressable>
+                  </UiTapPressable>
                 );
               })}
             </View>
@@ -449,7 +453,7 @@ export function ExampleLessonFlowScreen({
               {step.statement}
             </Text>
             <View style={[styles.tfRow, { marginTop: r(20, s) }]}>
-              <Pressable
+              <UiTapPressable
                 accessibilityRole="button"
                 onPress={() => setTfChoice('true')}
                 style={({ pressed }) => [
@@ -464,8 +468,8 @@ export function ExampleLessonFlowScreen({
                 ]}
               >
                 <Text style={[styles.tfBtnText, { fontSize: r(17, s), color: theme.primaryDark }]}>True</Text>
-              </Pressable>
-              <Pressable
+              </UiTapPressable>
+              <UiTapPressable
                 accessibilityRole="button"
                 onPress={() => setTfChoice('false')}
                 style={({ pressed }) => [
@@ -480,7 +484,7 @@ export function ExampleLessonFlowScreen({
                 ]}
               >
                 <Text style={[styles.tfBtnText, { fontSize: r(17, s), color: theme.primaryDark }]}>False</Text>
-              </Pressable>
+              </UiTapPressable>
             </View>
             {tfChoice != null &&
             ((step.correctIsTrue && tfChoice === 'false') || (!step.correctIsTrue && tfChoice === 'true')) ? (
@@ -515,7 +519,7 @@ export function ExampleLessonFlowScreen({
                 const isCorrect = opt.id === step.correctOptionId;
                 const showWrong = selected && !isCorrect;
                 return (
-                  <Pressable
+                  <UiTapPressable
                     key={opt.id}
                     accessibilityRole="button"
                     accessibilityState={{ selected }}
@@ -531,7 +535,7 @@ export function ExampleLessonFlowScreen({
                     ]}
                   >
                     <Text style={[styles.optionText, { fontSize: r(15, s), lineHeight: r(22, s), color: '#1a1a1a' }]}>{opt.label}</Text>
-                  </Pressable>
+                  </UiTapPressable>
                 );
               })}
             </View>
@@ -555,7 +559,7 @@ export function ExampleLessonFlowScreen({
 
       <View style={[styles.footer, { paddingBottom: bottomPad, paddingHorizontal: padH, paddingTop: r(12, s) }]}>
         {step?.kind === 'complete' ? (
-          <Pressable
+          <UiTapPressable
             accessibilityRole="button"
             onPress={handleComplete}
             style={({ pressed }) => [
@@ -568,9 +572,9 @@ export function ExampleLessonFlowScreen({
             ]}
           >
             <Text style={[styles.primaryBtnText, { fontSize: r(17, s) }]}>{step.doneLabel}</Text>
-          </Pressable>
+          </UiTapPressable>
         ) : (
-          <Pressable
+          <UiTapPressable
             accessibilityRole="button"
             accessibilityState={{ disabled: !canAdvance }}
             onPress={goNext}
@@ -585,7 +589,7 @@ export function ExampleLessonFlowScreen({
             ]}
           >
             <Text style={[styles.primaryBtnText, { fontSize: r(17, s), color: canAdvance ? '#fff' : '#888' }]}>Next</Text>
-          </Pressable>
+          </UiTapPressable>
         )}
         {!canAdvance && step?.kind !== 'complete' ? (
           <Text style={[styles.footerHint, { fontSize: r(13, s), marginTop: r(8, s), color: '#737373' }]}>{footerHint}</Text>

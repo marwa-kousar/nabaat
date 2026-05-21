@@ -20,7 +20,6 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,12 +30,23 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { LearningPathId } from './ChoosePathScreen';
+import { UiTapPressable } from './UiTapPressable';
 import { pathThemeOf } from '../lib/pathTheme';
 import { ayahLabIcons } from '../lib/ayahLabAssets';
 import { recitationListenCue } from '../lib/ayahLabRecitationHints';
 import { teachingForWord } from '../lib/ayahLabTeaching';
 import { exchangeCodeOnBackend, refreshOnBackend } from '../lib/qfBackendExchange';
+import { qfAddCollectionBookmark, qfDeleteCollectionBookmarkByDetails } from '../lib/qfBookmarks';
 import { QF_CLIENT_ID, QF_OAUTH_SCOPES, QF_USER_API_BASE, qfDiscovery } from '../lib/qfEnv';
+import {
+  QF_NOTE_BODY_MIN_LENGTH,
+  qfCreateNote,
+  qfDeleteNote,
+  qfListNotesByVerse,
+  qfPatchNote,
+  verseKeyToNoteRange,
+} from '../lib/qfUserNotes';
+import { safeAudioPlayUri } from '../lib/safeExpoAudio';
 import {
   buildWordAudioUrl,
   fetchAyahLabData,
@@ -51,6 +61,71 @@ WebBrowser.maybeCompleteAuthSession();
 const FIGMA_W = 393;
 const SECURE_REFRESH = 'qf_refresh_token';
 const SECURE_ACCESS = 'qf_access_token';
+
+/** Verse keys synced via Quran Foundation collections API on this device (cleared on sign-out). */
+const QF_BOOKMARKED_VERSE_KEYS = 'qf_bookmarked_verse_keys_json';
+
+async function readBookmarkedVerseKeySet(): Promise<Set<string>> {
+  try {
+    const raw = await SecureStore.getItemAsync(QF_BOOKMARKED_VERSE_KEYS);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw) as unknown;
+    if (!Array.isArray(arr)) return new Set();
+    return new Set(arr.filter((x): x is string => typeof x === 'string'));
+  } catch {
+    return new Set();
+  }
+}
+
+async function persistBookmarkedVerseKeySet(next: Set<string>) {
+  await SecureStore.setItemAsync(QF_BOOKMARKED_VERSE_KEYS, JSON.stringify([...next]));
+}
+
+async function markVerseBookmarkSynced(verseKey: string) {
+  const s = await readBookmarkedVerseKeySet();
+  s.add(verseKey);
+  await persistBookmarkedVerseKeySet(s);
+}
+
+async function unmarkVerseBookmarkSynced(verseKey: string) {
+  const s = await readBookmarkedVerseKeySet();
+  s.delete(verseKey);
+  await persistBookmarkedVerseKeySet(s);
+}
+
+async function clearBookmarkedVerseKeyStore() {
+  await SecureStore.deleteItemAsync(QF_BOOKMARKED_VERSE_KEYS).catch(() => {});
+}
+
+/** Maps `verseKey` → Quran Foundation note id for last create/update (cleared on sign-out). */
+const QF_REFLECTION_NOTE_IDS = 'qf_reflection_note_ids_json';
+
+async function readReflectionNoteIdMap(): Promise<Record<string, string>> {
+  try {
+    const raw = await SecureStore.getItemAsync(QF_REFLECTION_NOTE_IDS);
+    if (!raw) return {};
+    const o = JSON.parse(raw) as unknown;
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return {};
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(o)) {
+      if (typeof v === 'string' && v.length > 0) out[k] = v;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+async function setReflectionNoteIdForVerse(verseKey: string, noteId: string | null) {
+  const m = await readReflectionNoteIdMap();
+  if (noteId) m[verseKey] = noteId;
+  else delete m[verseKey];
+  await SecureStore.setItemAsync(QF_REFLECTION_NOTE_IDS, JSON.stringify(m));
+}
+
+async function clearReflectionNoteIdStore() {
+  await SecureStore.deleteItemAsync(QF_REFLECTION_NOTE_IDS).catch(() => {});
+}
 
 /** Quranic Arabic — same face as the original Ayah Lab (Noto Sans Arabic Bold). */
 const QURAN_ARABIC_FONT = 'NotoSansArabic_700Bold';
@@ -74,10 +149,16 @@ const INSIGHT_TABS = [
 
 export type InsightTabId = (typeof INSIGHT_TABS)[number]['id'];
 
+function defaultInsightTabForPath(path: LearningPathId): InsightTabId {
+  if (path === 'nahw') return 'grammar';
+  return 'wordByWord';
+}
+
 const TapGlyph = ayahLabIcons.tap;
 const SunGlyph = ayahLabIcons.sun;
 const AudioGlyph = ayahLabIcons.audio;
 const BookmarkGlyph = ayahLabIcons.bookmark;
+const BookmarkFilledGlyph = ayahLabIcons.bookmarkFilled;
 
 export type TodaysConnection = {
   lessonTitle: string;
@@ -133,18 +214,35 @@ export function AyahLabScreen({
   const [ayahAudioUri, setAyahAudioUri] = useState<string | null>(null);
   const [ayahWordTimings, setAyahWordTimings] = useState<Awaited<ReturnType<typeof fetchAyahRecitationWordTimings>>>(null);
   const [syncAyahWordHighlight, setSyncAyahWordHighlight] = useState(false);
+  /** Word highlighted after “tap to hear” (per-word clip); cleared when clip ends. */
+  const [hearTapWordPosition, setHearTapWordPosition] = useState<number | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [insightTab, setInsightTab] = useState<InsightTabId>('wordByWord');
+  const [insightTab, setInsightTab] = useState<InsightTabId>(() =>
+    defaultInsightTabForPath(learningPath),
+  );
   const [selected, setSelected] = useState<AyahWord | null>(null);
+
+  useEffect(() => {
+    setInsightTab(defaultInsightTabForPath(learningPath));
+  }, [learningPath]);
 
   const [reflectionText, setReflectionText] = useState('');
   const [reflectionNote, setReflectionNote] = useState<string | null>(null);
+  const [reflectionSaving, setReflectionSaving] = useState(false);
 
   const oauthPromptLockRef = useRef(false);
+  /** PKCE verifier captured when the browser login opens (stable for the redirect round-trip). */
+  const pkceVerifierRef = useRef<string | null>(null);
+  /** Auth codes we already exchanged or are exchanging (blocks Strict Mode double-calls). */
+  const oauthCodeHandledRef = useRef<string | null>(null);
+  const oauthExchangeInFlightRef = useRef<string | null>(null);
   const [oauthPromptOpen, setOauthPromptOpen] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  /** True only after word `playUri` finishes; prevents highlight clear on stale status before the new clip loads. */
+  const hearTapArmedRef = useRef(false);
+  const prevPlayingForHearTapRef = useRef(false);
 
   const audioPlayer = useAudioPlayer(null, { updateInterval: 70 });
   const audioStatus = useAudioPlayerStatus(audioPlayer);
@@ -159,6 +257,7 @@ export function AyahLabScreen({
       redirectUri,
       usePKCE: true,
       responseType: ResponseType.Code,
+      extraParams: { prompt: 'login' },
     },
     qfDiscovery,
   );
@@ -169,6 +268,8 @@ export function AyahLabScreen({
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [bookmarkMsg, setBookmarkMsg] = useState<string | null>(null);
+  const [ayahBookmarked, setAyahBookmarked] = useState(false);
+  const [bookmarkBusy, setBookmarkBusy] = useState(false);
 
   const [tafsirPlain, setTafsirPlain] = useState<string | null>(null);
   const [tafsirResourceName, setTafsirResourceName] = useState<string | null>(null);
@@ -181,6 +282,7 @@ export function AyahLabScreen({
     setLoadError(null);
     setAyahWordTimings(null);
     setSyncAyahWordHighlight(false);
+    setHearTapWordPosition(null);
     void (async () => {
       try {
         const [data, ayahUri, timings] = await Promise.all([
@@ -197,6 +299,17 @@ export function AyahLabScreen({
       } finally {
         if (!cancelled) setLoading(false);
       }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [verseKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const s = await readBookmarkedVerseKeySet();
+      if (!cancelled) setAyahBookmarked(s.has(verseKey));
     })();
     return () => {
       cancelled = true;
@@ -225,6 +338,11 @@ export function AyahLabScreen({
     audioStatus.playing,
   ]);
 
+  const activeWordPosition = useMemo(
+    () => ayahHighlightPosition ?? hearTapWordPosition,
+    [ayahHighlightPosition, hearTapWordPosition],
+  );
+
   useEffect(() => {
     if (!syncAyahWordHighlight) return;
     const dur = audioStatus.duration;
@@ -235,22 +353,78 @@ export function AyahLabScreen({
   }, [syncAyahWordHighlight, audioStatus.playing, audioStatus.duration, audioStatus.currentTime]);
 
   useEffect(() => {
+    if (syncAyahWordHighlight) {
+      hearTapArmedRef.current = false;
+      prevPlayingForHearTapRef.current = audioStatus.playing;
+      return;
+    }
+    if (hearTapWordPosition == null) {
+      hearTapArmedRef.current = false;
+      prevPlayingForHearTapRef.current = audioStatus.playing;
+      return;
+    }
+
+    const prev = prevPlayingForHearTapRef.current;
+    const playing = audioStatus.playing;
+
+    if (hearTapArmedRef.current && prev && !playing) {
+      const dur = audioStatus.duration;
+      const t = audioStatus.currentTime;
+      if (dur > 0 && t >= dur - 0.15) {
+        setHearTapWordPosition(null);
+        hearTapArmedRef.current = false;
+        prevPlayingForHearTapRef.current = false;
+        return;
+      }
+    }
+
+    prevPlayingForHearTapRef.current = playing;
+  }, [syncAyahWordHighlight, hearTapWordPosition, audioStatus.playing, audioStatus.duration, audioStatus.currentTime]);
+
+  useEffect(() => {
+    let cancelled = false;
     void (async () => {
       try {
         const stored = await SecureStore.getItemAsync(reflectionKey(verseKey));
-        if (stored) setReflectionText(stored);
+        if (cancelled) return;
+        if (stored) {
+          setReflectionText(stored);
+          return;
+        }
+        setReflectionText('');
+        const at = accessToken ?? (await SecureStore.getItemAsync(SECURE_ACCESS));
+        if (!at || !QF_CLIENT_ID.trim()) {
+          return;
+        }
+        const list = await qfListNotesByVerse(QF_USER_API_BASE, at, QF_CLIENT_ID, verseKey);
+        if (cancelled || !list.ok) return;
+        const row = list.notes[0];
+        const body = row?.body;
+        if (typeof body === 'string' && body.trim()) {
+          setReflectionText(body);
+          await SecureStore.setItemAsync(reflectionKey(verseKey), body);
+          if (row.id) await setReflectionNoteIdForVerse(verseKey, row.id);
+        } else {
+          setReflectionText('');
+        }
       } catch {
         /* ignore */
       }
     })();
-  }, [verseKey]);
+    return () => {
+      cancelled = true;
+    };
+  }, [verseKey, accessToken]);
 
   useEffect(() => {
     void (async () => {
       try {
         const rt = await SecureStore.getItemAsync(SECURE_REFRESH);
         const at = await SecureStore.getItemAsync(SECURE_ACCESS);
-        if (at) setAccessToken(at);
+        if (at) {
+          setAccessToken(at);
+          setAuthError(null);
+        }
         if (rt) setRefreshToken(rt);
       } catch {
         /* ignore */
@@ -258,53 +432,74 @@ export function AyahLabScreen({
     })();
   }, []);
 
-  useEffect(() => {
-    if (!response || !request?.codeVerifier) return;
-    if (response.type === 'error') {
-      setAuthError(response.error?.message ?? 'Login error');
-      return;
+  const applyQfTokens = useCallback(async (tokens: Awaited<ReturnType<typeof exchangeCodeOnBackend>>) => {
+    await SecureStore.setItemAsync(SECURE_ACCESS, tokens.accessToken);
+    if (tokens.refreshToken) {
+      await SecureStore.setItemAsync(SECURE_REFRESH, tokens.refreshToken);
     }
-    if (response.type !== 'success' || !response.params?.code) return;
-    const codeVerifier = request.codeVerifier;
-    if (!codeVerifier) return;
+    setAccessToken(tokens.accessToken);
+    if (tokens.refreshToken) setRefreshToken(tokens.refreshToken);
+    setAuthError(null);
+    if (tokens.idToken) {
+      try {
+        const claims = jwtDecode<{ sub?: string; email?: string; name?: string }>(tokens.idToken);
+        setIdSummary(claims.email ?? claims.name ?? claims.sub ?? 'Signed in');
+      } catch {
+        setIdSummary('Signed in');
+      }
+    } else {
+      setIdSummary('Signed in');
+    }
+  }, []);
 
-    let cancelled = false;
-    void (async () => {
+  /** One auth code → one exchange (OAuth codes are single-use). */
+  const exchangeAuthCode = useCallback(
+    async (authCode: string, codeVerifier: string): Promise<void> => {
+      if (oauthCodeHandledRef.current === authCode) return;
+      if (oauthExchangeInFlightRef.current === authCode) return;
+      oauthCodeHandledRef.current = authCode;
+      oauthExchangeInFlightRef.current = authCode;
       setAuthBusy(true);
       setAuthError(null);
       try {
         const tokens = await exchangeCodeOnBackend({
-          code: response.params.code,
+          code: authCode,
           codeVerifier,
           redirectUri,
         });
-        if (cancelled) return;
-        setAccessToken(tokens.accessToken);
-        if (tokens.refreshToken) {
-          setRefreshToken(tokens.refreshToken);
-          await SecureStore.setItemAsync(SECURE_REFRESH, tokens.refreshToken);
-        }
-        await SecureStore.setItemAsync(SECURE_ACCESS, tokens.accessToken);
-        if (tokens.idToken) {
-          try {
-            const claims = jwtDecode<{ sub?: string; email?: string; name?: string }>(tokens.idToken);
-            setIdSummary(claims.email ?? claims.name ?? claims.sub ?? 'Signed in');
-          } catch {
-            setIdSummary('Signed in');
-          }
-        } else {
-          setIdSummary('Signed in');
-        }
+        await applyQfTokens(tokens);
       } catch (e) {
-        if (!cancelled) setAuthError(e instanceof Error ? e.message : 'Exchange failed');
+        oauthCodeHandledRef.current = null;
+        setAuthError(e instanceof Error ? e.message : 'Exchange failed');
+        throw e;
       } finally {
-        if (!cancelled) setAuthBusy(false);
+        oauthExchangeInFlightRef.current = null;
+        setAuthBusy(false);
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [response, request, redirectUri]);
+    },
+    [applyQfTokens, redirectUri],
+  );
+
+  useEffect(() => {
+    if (!response) return;
+    if (response.type === 'dismiss' || response.type === 'cancel') {
+      setAuthBusy(false);
+      return;
+    }
+    if (response.type === 'error') {
+      setAuthError(response.error?.message ?? 'Login error');
+      setAuthBusy(false);
+      return;
+    }
+    if (response.type !== 'success' || !response.params?.code) return;
+    if (oauthPromptLockRef.current) return;
+
+    const authCode = response.params.code;
+    const codeVerifier = pkceVerifierRef.current ?? request?.codeVerifier;
+    if (!codeVerifier) return;
+
+    void exchangeAuthCode(authCode, codeVerifier).catch(() => {});
+  }, [response, request?.codeVerifier, exchangeAuthCode]);
 
   useEffect(() => {
     void setAudioModeAsync({ playsInSilentMode: true });
@@ -344,35 +539,47 @@ export function AyahLabScreen({
 
   const playUri = useCallback(
     async (uri: string) => {
-      try {
-        audioPlayer.pause();
-        audioPlayer.replace(uri);
-        await audioPlayer.seekTo(0);
-        audioPlayer.play();
-      } catch {
-        /* ignore */
-      }
+      await safeAudioPlayUri(audioPlayer, uri);
     },
     [audioPlayer],
   );
 
   const startQuranLogin = useCallback(async () => {
-    if (!request || !QF_CLIENT_ID.trim() || authBusy || oauthPromptOpen) return;
+    const codeVerifier = request?.codeVerifier;
+    if (!request || !codeVerifier || !QF_CLIENT_ID.trim() || authBusy || oauthPromptOpen) return;
     if (oauthPromptLockRef.current) return;
     oauthPromptLockRef.current = true;
     setOauthPromptOpen(true);
+    setAuthError(null);
+    pkceVerifierRef.current = codeVerifier;
     try {
-      await promptAsync();
+      const result = await promptAsync();
+      if (result.type === 'dismiss' || result.type === 'cancel') {
+        setAuthBusy(false);
+        return;
+      }
+      if (result.type === 'error') {
+        setAuthError(result.error?.message ?? 'Login error');
+        setAuthBusy(false);
+        return;
+      }
+      if (result.type === 'success' && result.params?.code) {
+        const verifier = pkceVerifierRef.current ?? codeVerifier;
+        await exchangeAuthCode(result.params.code, verifier);
+      }
     } catch {
-      /* dismissed */
+      /* exchangeAuthCode sets authError */
     } finally {
       oauthPromptLockRef.current = false;
       setOauthPromptOpen(false);
+      pkceVerifierRef.current = null;
     }
-  }, [request, authBusy, oauthPromptOpen, promptAsync]);
+  }, [request, authBusy, oauthPromptOpen, promptAsync, exchangeAuthCode]);
 
   const onPlayAyah = useCallback(async () => {
     if (!ayahAudioUri) return;
+    hearTapArmedRef.current = false;
+    setHearTapWordPosition(null);
     setSyncAyahWordHighlight(true);
     await playUri(ayahAudioUri);
   }, [ayahAudioUri, playUri]);
@@ -380,17 +587,35 @@ export function AyahLabScreen({
   const onPlayWord = useCallback(
     async (w: AyahWord) => {
       setSyncAyahWordHighlight(false);
+      hearTapArmedRef.current = false;
       const uri = buildWordAudioUrl(w.audioPath);
-      if (!uri) return;
-      await playUri(uri);
+      if (!uri) {
+        setHearTapWordPosition(null);
+        return;
+      }
+      setHearTapWordPosition(w.position);
+      try {
+        await playUri(uri);
+        hearTapArmedRef.current = true;
+      } catch {
+        hearTapArmedRef.current = false;
+        setHearTapWordPosition(null);
+      }
     },
     [playUri],
   );
 
   const logout = useCallback(async () => {
+    oauthCodeHandledRef.current = null;
+    oauthExchangeInFlightRef.current = null;
+    pkceVerifierRef.current = null;
     setAccessToken(null);
     setRefreshToken(null);
     setIdSummary(null);
+    setAuthError(null);
+    setAyahBookmarked(false);
+    await clearBookmarkedVerseKeyStore();
+    await clearReflectionNoteIdStore();
     await SecureStore.deleteItemAsync(SECURE_ACCESS).catch(() => {});
     await SecureStore.deleteItemAsync(SECURE_REFRESH).catch(() => {});
   }, []);
@@ -407,9 +632,21 @@ export function AyahLabScreen({
     await SecureStore.setItemAsync(SECURE_ACCESS, tokens.accessToken);
   }, [refreshToken]);
 
-  const bookmarkAyah = useCallback(async () => {
+  const readAccessToken = useCallback(
+    async () => accessToken ?? (await SecureStore.getItemAsync(SECURE_ACCESS)),
+    [accessToken],
+  );
+
+  const toggleBookmarkAyah = useCallback(async () => {
     setBookmarkMsg(null);
-    if (!accessToken) {
+    const tokenNow = await readAccessToken();
+    if (!tokenNow) {
+      if (ayahBookmarked) {
+        await unmarkVerseBookmarkSynced(verseKey);
+        setAyahBookmarked(false);
+        setBookmarkMsg('Removed on this device. Sign in to sync with Quran.com.');
+        return;
+      }
       setBookmarkMsg('Sign in to sync this ayah to Quran.com bookmarks.');
       return;
     }
@@ -417,37 +654,218 @@ export function AyahLabScreen({
       setBookmarkMsg('Missing EXPO_PUBLIC_QF_CLIENT_ID.');
       return;
     }
+    if (bookmarkBusy) return;
+
+    const apiBase = QF_USER_API_BASE;
+    const clientId = QF_CLIENT_ID;
+    const removing = ayahBookmarked;
+
+    const run = async (token: string) => {
+      if (removing) {
+        return qfDeleteCollectionBookmarkByDetails(apiBase, token, clientId, verseKey);
+      }
+      return qfAddCollectionBookmark(apiBase, token, clientId, verseKey);
+    };
+
+    setBookmarkBusy(true);
     try {
-      const res = await fetch(`${QF_USER_API_BASE.replace(/\/$/, '')}/bookmarks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': accessToken,
-          'x-client-id': QF_CLIENT_ID,
-        },
-        body: JSON.stringify({ verse_key: verseKey }),
-      });
-      const body = await res.text();
-      if (!res.ok) {
-        if (res.status === 401) await tryRefresh().catch(() => {});
-        setBookmarkMsg(`Bookmark: ${res.status} ${body.slice(0, 80)}`);
+      let token = tokenNow;
+      let result = await run(token);
+      if (result.status === 401) {
+        await tryRefresh().catch(() => {});
+        const next = await readAccessToken();
+        if (!next) {
+          setBookmarkMsg('Session expired. Sign in again to sync bookmarks.');
+          return;
+        }
+        token = next;
+        result = await run(token);
+      }
+
+      if (!result.ok && !(removing && result.status === 404)) {
+        setBookmarkMsg(
+          removing
+            ? `Remove bookmark: ${result.status} ${result.raw.slice(0, 80)}`
+            : `Bookmark: ${result.status} ${result.raw.slice(0, 80)}`,
+        );
         return;
       }
-      setBookmarkMsg('Saved to your Quran.com bookmarks.');
+
+      if (removing) {
+        await unmarkVerseBookmarkSynced(verseKey);
+        setAyahBookmarked(false);
+        setBookmarkMsg('Removed from your Quran.com bookmarks.');
+      } else {
+        await markVerseBookmarkSynced(verseKey);
+        setAyahBookmarked(true);
+        setBookmarkMsg('Saved to your Quran.com bookmarks.');
+      }
     } catch (e) {
-      setBookmarkMsg(e instanceof Error ? e.message : 'Bookmark failed');
+      const msg = e instanceof Error ? e.message : removing ? 'Remove bookmark failed' : 'Bookmark failed';
+      setBookmarkMsg(
+        msg === 'Network request failed'
+          ? `${msg} (bookmarks API). Check Wi‑Fi / VPN, or confirm EXPO_PUBLIC_QF_USER_API_BASE is not set to a local URL.`
+          : `Bookmarks: ${msg}`,
+      );
+    } finally {
+      setBookmarkBusy(false);
     }
-  }, [accessToken, verseKey, tryRefresh]);
+  }, [readAccessToken, ayahBookmarked, bookmarkBusy, verseKey, tryRefresh]);
 
   const saveReflection = useCallback(async () => {
+    if (reflectionSaving) return;
     const trimmed = reflectionText.trim();
+    const readAuth = async () => (await SecureStore.getItemAsync(SECURE_ACCESS)) ?? accessToken;
+
+    setReflectionSaving(true);
+    setReflectionNote(null);
+
     try {
       await SecureStore.setItemAsync(reflectionKey(verseKey), trimmed);
-      setReflectionNote(trimmed ? 'Saved on this device.' : 'Cleared.');
-    } catch {
-      setReflectionNote('Could not save.');
+
+      if (!trimmed) {
+        const auth = await readAuth();
+        if (!auth || !QF_CLIENT_ID.trim()) {
+          setReflectionNote('Cleared on this device.');
+          return;
+        }
+        let noteId = (await readReflectionNoteIdMap())[verseKey];
+        let list = await qfListNotesByVerse(QF_USER_API_BASE, auth, QF_CLIENT_ID, verseKey);
+        if (list.status === 401) {
+          await tryRefresh().catch(() => {});
+          const auth2 = await readAuth();
+          if (auth2) list = await qfListNotesByVerse(QF_USER_API_BASE, auth2, QF_CLIENT_ID, verseKey);
+        }
+        if (!noteId && list.ok && list.notes[0]?.id) noteId = list.notes[0].id;
+        if (!noteId) {
+          setReflectionNote('Cleared on this device.');
+          return;
+        }
+        let authDel = await readAuth();
+        if (!authDel) {
+          setReflectionNote('Cleared on this device.');
+          return;
+        }
+        let del = await qfDeleteNote(QF_USER_API_BASE, authDel, QF_CLIENT_ID, noteId);
+        if (del.status === 401) {
+          await tryRefresh().catch(() => {});
+          authDel = await readAuth();
+          if (authDel) del = await qfDeleteNote(QF_USER_API_BASE, authDel, QF_CLIENT_ID, noteId);
+        }
+        if (del.ok) {
+          await setReflectionNoteIdForVerse(verseKey, null);
+          setReflectionNote('Cleared on this device and removed from Quran.com notes.');
+        } else {
+          setReflectionNote('Cleared on this device.');
+        }
+        return;
+      }
+
+      const range = verseKeyToNoteRange(verseKey);
+      if (!QF_CLIENT_ID.trim()) {
+        setReflectionNote('Saved on this device.');
+        return;
+      }
+
+      if (!(await readAuth())) {
+        setReflectionNote('Saved on this device.');
+        return;
+      }
+      if (!range) {
+        setReflectionNote('Saved on this device.');
+        return;
+      }
+      if (trimmed.length < QF_NOTE_BODY_MIN_LENGTH) {
+        setReflectionNote(
+          `Saved on this device. Add at least ${QF_NOTE_BODY_MIN_LENGTH} characters to sync to Quran.com.`,
+        );
+        return;
+      }
+
+      const withAuthRetry = async <T extends { status: number }>(
+        call: (t: string) => Promise<T>,
+      ): Promise<T | null> => {
+        let t = await readAuth();
+        if (!t) return null;
+        let result = await call(t);
+        if (result.status === 401) {
+          await tryRefresh().catch(() => {});
+          t = await readAuth();
+          if (t) result = await call(t);
+        }
+        return result;
+      };
+
+      let noteId: string | undefined = (await readReflectionNoteIdMap())[verseKey];
+      if (!noteId) {
+        const list = await withAuthRetry((t) =>
+          qfListNotesByVerse(QF_USER_API_BASE, t, QF_CLIENT_ID, verseKey),
+        );
+        if (list?.ok && list.notes[0]?.id) noteId = list.notes[0].id;
+      }
+
+      if (noteId) {
+        const patch = await withAuthRetry((t) =>
+          qfPatchNote(QF_USER_API_BASE, t, QF_CLIENT_ID, noteId!, trimmed, range),
+        );
+        if (patch?.ok) {
+          await setReflectionNoteIdForVerse(verseKey, noteId);
+          setReflectionNote('Saved on this device and synced to Quran.com notes.');
+          return;
+        }
+        await setReflectionNoteIdForVerse(verseKey, null);
+      }
+
+      const created = await withAuthRetry((t) =>
+        qfCreateNote(QF_USER_API_BASE, t, QF_CLIENT_ID, trimmed, range),
+      );
+      if (!created) {
+        setReflectionNote('Saved on this device.');
+        return;
+      }
+
+      if (created.ok) {
+        let syncedId = created.noteId;
+        if (!syncedId) {
+          const list = await withAuthRetry((t) =>
+            qfListNotesByVerse(QF_USER_API_BASE, t, QF_CLIENT_ID, verseKey),
+          );
+          syncedId = list?.ok ? list.notes[0]?.id : undefined;
+        }
+        if (syncedId) await setReflectionNoteIdForVerse(verseKey, syncedId);
+        setReflectionNote('Saved on this device and synced to Quran.com notes.');
+        return;
+      }
+
+      if (created.status === 403) {
+        setReflectionNote('Saved on this device. Sign out and sign in again to allow note sync.');
+        return;
+      }
+
+      if (created.status === 422) {
+        const list = await withAuthRetry((t) =>
+          qfListNotesByVerse(QF_USER_API_BASE, t, QF_CLIENT_ID, verseKey),
+        );
+        const existingId = list?.ok ? list.notes[0]?.id : undefined;
+        if (existingId) {
+          const patch = await withAuthRetry((t) =>
+            qfPatchNote(QF_USER_API_BASE, t, QF_CLIENT_ID, existingId, trimmed, range),
+          );
+          if (patch?.ok) {
+            await setReflectionNoteIdForVerse(verseKey, existingId);
+            setReflectionNote('Saved on this device and synced to Quran.com notes.');
+            return;
+          }
+        }
+      }
+
+      setReflectionNote('Could not sync to Quran.com. Saved on this device.');
+    } catch (e) {
+      setReflectionNote(e instanceof Error ? e.message : 'Could not save.');
+    } finally {
+      setReflectionSaving(false);
     }
-  }, [reflectionText, verseKey]);
+  }, [accessToken, reflectionSaving, reflectionText, tryRefresh, verseKey]);
 
   const padH = r(21, s);
   const bottomPad = Math.max(r(24, s), insets.bottom);
@@ -479,7 +897,7 @@ export function AyahLabScreen({
                   style={[
                     styles.wbwCol,
                     idx > 0 ? { borderLeftWidth: 1, borderLeftColor: 'rgba(0,0,0,0.12)' } : undefined,
-                    ayahHighlightPosition === w.position
+                    activeWordPosition === w.position
                       ? {
                           backgroundColor: theme.progressTrack,
                           borderRadius: r(8, s),
@@ -488,7 +906,7 @@ export function AyahLabScreen({
                       : null,
                   ]}
                 >
-                  <Pressable
+                  <UiTapPressable
                     accessibilityRole="button"
                     accessibilityLabel={`Play ${w.text}`}
                     onPress={() => void onPlayWord(w)}
@@ -504,7 +922,7 @@ export function AyahLabScreen({
                         fontSize: r(24, s),
                         lineHeight: r(-38, s),
                         color: '#000',
-                        ...(ayahHighlightPosition === w.position
+                        ...(activeWordPosition === w.position
                           ? { backgroundColor: theme.progressTrack, borderRadius: r(6, s), paddingHorizontal: r(4, s) }
                           : {}),
                         ...textPad,
@@ -515,7 +933,7 @@ export function AyahLabScreen({
                   </Text>
                     <Text style={[styles.wbwTr, { fontSize: r(10, s), marginTop: r(4, s), color: NEUTRAL.muted }]}>{w.transliteration}</Text>
                     <Text style={[styles.wbwEn, { fontSize: r(12, s), marginTop: r(6, s), color: '#000' }]}>{w.meaning}</Text>
-                  </Pressable>
+                  </UiTapPressable>
                 </View>
               ))}
             </View>
@@ -563,7 +981,7 @@ export function AyahLabScreen({
                       fontFamily: QURAN_ARABIC_FONT,
                       fontSize: r(18, s),
                       color: '#000',
-                      ...(ayahHighlightPosition === w.position
+                      ...(activeWordPosition === w.position
                         ? { backgroundColor: theme.progressTrack, borderRadius: r(6, s), paddingHorizontal: r(4, s) }
                         : {}),
                       ...textPad,
@@ -594,7 +1012,7 @@ export function AyahLabScreen({
                       fontFamily: QURAN_ARABIC_FONT,
                       fontSize: r(18, s),
                       color: '#000',
-                      ...(ayahHighlightPosition === w.position
+                      ...(activeWordPosition === w.position
                         ? { backgroundColor: theme.progressTrack, borderRadius: r(6, s), paddingHorizontal: r(4, s) }
                         : {}),
                       ...textPad,
@@ -603,9 +1021,9 @@ export function AyahLabScreen({
                 >
                   {w.text}
                 </Text>
-                <Pressable onPress={() => void onPlayWord(w)} style={styles.miniPlay}>
+                <UiTapPressable onPress={() => void onPlayWord(w)} style={styles.miniPlay}>
                   <Text style={{ color: theme.primary, fontFamily: 'Nunito_800ExtraBold', fontSize: r(11, s) }}>▶</Text>
-                </Pressable>
+                </UiTapPressable>
               </View>
               <Text style={{ fontSize: r(12, s), marginTop: r(4, s), color: theme.primaryDark, fontFamily: 'Nunito_700Bold' }}>{recitationListenCue(w)}</Text>
             </View>
@@ -624,8 +1042,12 @@ export function AyahLabScreen({
 
   const sheet = (
     <Modal visible={!!selected} animationType="slide" transparent onRequestClose={() => setSelected(null)}>
-      <Pressable style={styles.modalBackdrop} onPress={() => setSelected(null)}>
-        <Pressable style={[styles.sheet, { paddingBottom: bottomPad + r(12, s), paddingHorizontal: padH }]} onPress={(e) => e.stopPropagation()}>
+      <UiTapPressable disableUiTapSound style={styles.modalBackdrop} onPress={() => setSelected(null)}>
+        <UiTapPressable
+          disableUiTapSound
+          style={[styles.sheet, { paddingBottom: bottomPad + r(12, s), paddingHorizontal: padH }]}
+          onPress={(e) => e.stopPropagation()}
+        >
           {selected && teaching ? (
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text
@@ -645,19 +1067,19 @@ export function AyahLabScreen({
               <Text style={[styles.sheetBody]}>{teaching.root ?? '—'}</Text>
               <Text style={[styles.sheetLabel, { color: NEUTRAL.muted }]}>Note</Text>
               <Text style={[styles.sheetBody, { lineHeight: r(21, s) }]}>{teaching.teachingNote}</Text>
-              <Pressable
+              <UiTapPressable
                 onPress={() => void onPlayWord(selected)}
                 style={[styles.saveBtn, { marginTop: r(14, s), alignSelf: 'flex-start', backgroundColor: theme.primary, borderColor: theme.primaryDark }]}
               >
                 <Text style={styles.saveBtnText}>Play word audio</Text>
-              </Pressable>
-              <Pressable onPress={() => setSelected(null)} style={{ marginTop: r(12, s), alignSelf: 'center' }}>
+              </UiTapPressable>
+              <UiTapPressable onPress={() => setSelected(null)} style={{ marginTop: r(12, s), alignSelf: 'center' }}>
                 <Text style={{ fontFamily: 'Nunito_700Bold', color: theme.headerText }}>Close</Text>
-              </Pressable>
+              </UiTapPressable>
             </ScrollView>
           ) : null}
-        </Pressable>
-      </Pressable>
+        </UiTapPressable>
+      </UiTapPressable>
     </Modal>
   );
 
@@ -666,9 +1088,9 @@ export function AyahLabScreen({
       {!isTab ? (
         <View style={[styles.stackHeader, { paddingTop: insets.top + r(6, s), paddingHorizontal: padH }]}>
           {onBack ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={onBack} hitSlop={12} style={styles.backHit}>
+            <UiTapPressable accessibilityRole="button" accessibilityLabel="Go back" onPress={onBack} hitSlop={12} style={styles.backHit}>
               <Text style={[styles.backChevron, { fontSize: r(20, s), color: theme.headerText }]}>‹</Text>
-            </Pressable>
+            </UiTapPressable>
           ) : (
             <View style={{ width: 40 }} />
           )}
@@ -709,7 +1131,7 @@ export function AyahLabScreen({
           keyboardShouldPersistTaps="handled"
         >
           {todaysConnection ? (
-            <Pressable
+            <UiTapPressable
               onPress={todaysConnection.onOpenLesson}
               accessibilityRole="button"
               style={({ pressed }) => [
@@ -733,18 +1155,12 @@ export function AyahLabScreen({
                 <Text style={[styles.connAyah, { fontSize: r(11, s), marginTop: r(4, s), color: NEUTRAL.muted }]}>{todaysConnection.ayahRef}</Text>
               </View>
               <Text style={{ fontSize: r(16, s), color: theme.headerText }}>›</Text>
-            </Pressable>
-          ) : null}
-
-          {!QF_CLIENT_ID.trim() ? (
-            <View style={[styles.warnBox, { padding: r(10, s), marginBottom: r(10, s) }]}>
-              <Text style={styles.warnText}>Set EXPO_PUBLIC_QF_CLIENT_ID for Quran.com sign-in.</Text>
-            </View>
+            </UiTapPressable>
           ) : null}
 
           <View style={[styles.authRowMini, { marginBottom: r(10, s) }]}>
             {!accessToken ? (
-              <Pressable
+              <UiTapPressable
                 disabled={authBusy || oauthPromptOpen || !request || !QF_CLIENT_ID.trim()}
                 onPress={() => void startQuranLogin()}
                 style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
@@ -752,11 +1168,11 @@ export function AyahLabScreen({
                 <Text style={[styles.linkMini, { color: theme.headerText, fontSize: r(12, s) }]}>
                   {authBusy || oauthPromptOpen ? 'Signing in…' : 'Sign in to sync bookmarks'}
                 </Text>
-              </Pressable>
+              </UiTapPressable>
             ) : (
-              <Pressable onPress={() => void logout()}>
+              <UiTapPressable onPress={() => void logout()}>
                 <Text style={[styles.linkMini, { color: NEUTRAL.muted, fontSize: r(12, s) }]}>Sign out ({idSummary})</Text>
-              </Pressable>
+              </UiTapPressable>
             )}
             {authError ? <Text style={[styles.errMini, { fontSize: r(11, s) }]}>{authError}</Text> : null}
             {bookmarkMsg ? <Text style={[styles.hintMini, { fontSize: r(11, s) }]}>{bookmarkMsg}</Text> : null}
@@ -780,12 +1196,25 @@ export function AyahLabScreen({
               >
                 <View style={styles.heroInner}>
                   <View style={[styles.heroTools, { marginBottom: r(8, s) }]}>
-                    <Pressable accessibilityLabel="Play ayah audio" hitSlop={10} onPress={() => void onPlayAyah()} disabled={!ayahAudioUri}>
+                    <UiTapPressable accessibilityLabel="Play ayah audio" hitSlop={10} onPress={() => void onPlayAyah()} disabled={!ayahAudioUri}>
                       <AudioGlyph width={r(24, s)} height={r(24, s)} style={{ opacity: ayahAudioUri ? 1 : 0.35 }} />
-                    </Pressable>
-                    <Pressable accessibilityLabel="Bookmark ayah" hitSlop={10} onPress={() => void bookmarkAyah()}>
-                      <BookmarkGlyph width={r(24, s)} height={r(24, s)} />
-                    </Pressable>
+                    </UiTapPressable>
+                    <UiTapPressable
+                      accessibilityLabel={
+                        ayahBookmarked
+                          ? 'Remove ayah from Quran.com bookmarks'
+                          : 'Bookmark ayah on Quran.com'
+                      }
+                      hitSlop={10}
+                      disabled={bookmarkBusy}
+                      onPress={() => void toggleBookmarkAyah()}
+                    >
+                      {ayahBookmarked ? (
+                        <BookmarkFilledGlyph width={r(24, s)} height={r(24, s)} fill={theme.primary} />
+                      ) : (
+                        <BookmarkGlyph width={r(24, s)} height={r(24, s)} />
+                      )}
+                    </UiTapPressable>
                   </View>
 
                   <Text
@@ -805,7 +1234,7 @@ export function AyahLabScreen({
                       <Text
                         key={w.id}
                         style={
-                          ayahHighlightPosition === w.position
+                          activeWordPosition === w.position
                             ? {
                                 backgroundColor: theme.progressTrack,
                                 borderRadius: r(5, s),
@@ -838,7 +1267,7 @@ export function AyahLabScreen({
                       const TabIcon = tab.Icon;
                       const tabInk = on ? theme.primary : NEUTRAL.muted;
                       return (
-                        <Pressable
+                        <UiTapPressable
                           key={tab.id}
                           accessibilityRole="button"
                           accessibilityState={{ selected: on }}
@@ -856,7 +1285,7 @@ export function AyahLabScreen({
                               backgroundColor: on ? theme.primary : 'transparent',
                             }}
                           />
-                        </Pressable>
+                        </UiTapPressable>
                       );
                     })}
                   </View>
@@ -890,26 +1319,25 @@ export function AyahLabScreen({
                     },
                   ]}
                 />
-                <Pressable
+                <UiTapPressable
                   onPress={() => void saveReflection()}
+                  disabled={reflectionSaving}
                   style={({ pressed }) => [
                     styles.saveBtn,
                     {
                       marginTop: r(10, s),
                       backgroundColor: theme.primary,
                       borderColor: theme.primaryDark,
-                      opacity: pressed ? 0.9 : 1,
+                      opacity: reflectionSaving ? 0.6 : pressed ? 0.9 : 1,
                     },
                   ]}
                 >
-                  <Text style={[styles.saveBtnText, { fontSize: r(12, s) }]}>Save Reflection</Text>
-                </Pressable>
+                  <Text style={[styles.saveBtnText, { fontSize: r(12, s) }]}>
+                    {reflectionSaving ? 'Saving…' : 'Save Reflection'}
+                  </Text>
+                </UiTapPressable>
                 {reflectionNote ? <Text style={[styles.hintMini, { marginTop: r(8, s) }]}>{reflectionNote}</Text> : null}
               </View>
-
-              <Text style={[styles.longPressHint, { fontSize: r(11, s), marginTop: r(10, s), color: NEUTRAL.muted2, textAlign: 'center' }]}>
-                Tap a word to hear it. Long-press for meanings, roots, and teaching notes.
-              </Text>
             </>
           ) : null}
         </ScrollView>
@@ -925,21 +1353,11 @@ const styles = StyleSheet.create({
   stickyTitleBar: {
     backgroundColor: NEUTRAL.pageBg,
     zIndex: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-      },
-      android: { elevation: 3 },
-      default: {},
-    }),
   },
   stickyTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: NEUTRAL.pageBg,
+    backgroundColor: 'transparent',
   },
   stackHeader: { flexDirection: 'row', alignItems: 'center' },
   backHit: { width: 40, height: 40, justifyContent: 'center' },
@@ -954,8 +1372,6 @@ const styles = StyleSheet.create({
   connPillText: { fontFamily: 'Fredoka_500Medium', ...textPad },
   connSub: { fontFamily: 'Nunito_700Bold', ...textPad },
   connAyah: { fontFamily: 'Nunito_700Bold' },
-  warnBox: { backgroundColor: '#fffbeb', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)' },
-  warnText: { fontFamily: 'Nunito_700Bold', color: '#92400e', fontSize: 12 },
   authRowMini: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
   linkMini: { fontFamily: 'Nunito_700Bold' },
   errMini: { fontFamily: 'Nunito_700Bold', color: '#b00020' },
@@ -996,7 +1412,6 @@ const styles = StyleSheet.create({
   refInput: { borderWidth: 1, fontFamily: 'Nunito_700Bold', color: '#111' },
   saveBtn: { alignSelf: 'flex-start', borderRadius: 6, borderWidth: 1, paddingVertical: 6, paddingHorizontal: 14 },
   saveBtnText: { fontFamily: 'Fredoka_500Medium', color: '#fff' },
-  longPressHint: { fontFamily: 'Nunito_700Bold' },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: '#fff',

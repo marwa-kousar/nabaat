@@ -11,18 +11,20 @@ import { Nunito_700Bold, useFonts as useNunito } from '@expo-google-fonts/nunito
 import { useCallback, useRef, useState } from 'react';
 import {
   Animated,
-  Image,
+
   ImageSourcePropType,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import DailyGoalPagination from '../assets/daily-goal-pagination.svg';
+
+import { UiTapPressable } from './UiTapPressable';
 
 /** Figma “Choose Daily Goal” — node 1137:3143 (393×852) */
 const FIGMA_W = 393;
@@ -70,7 +72,7 @@ const TIME_OPTIONS: TimeCardConfig[] = [
   },
 ];
 
-const ARABIC_QUOTE = 'نِيَّةُ المُؤمنِ خَيرٌ مِن عَمَلِهِ';
+const ARABIC_QUOTE =' نِيَّةُ الْمُؤْمِنِ خَيْرٌ مِنْ عَمَلِهِ';
 const ENGLISH_QUOTE = 'The intention of a believer is better than his action';
 
 type Props = {
@@ -141,7 +143,7 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
   const pillRadius = 47 * sx;
 
   const footerBlockH =
-    46 * sy + 12 * sy + (49 + 3) * sy + 10 * sy + 21 * sy + Math.max(insets.bottom, 12);
+    (49 + 3) * sy + 10 * sy + 21 * sy + Math.max(insets.bottom, 12);
 
   const renderTimeCard = (opt: TimeCardConfig) => {
     const isOn = selected === opt.id;
@@ -149,7 +151,7 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
     const subLine = `${opt.subtitle[0]}\n${opt.subtitle[1]}`;
 
     return (
-      <Pressable
+      <UiTapPressable
         key={opt.id}
         onPress={() => onSelect(opt.id)}
         style={({ pressed }) => [
@@ -182,7 +184,7 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
             },
           ]}
         />
-        <Image
+        <AppImage
           source={opt.plant}
           style={{
             position: 'absolute',
@@ -217,14 +219,14 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
         >
           {subLine}
         </Text>
-      </Pressable>
+      </UiTapPressable>
     );
   };
 
   return (
     <View style={styles.root}>
       <View style={[styles.bgClip, { height: bgH }]}>
-        <Image
+        <AppImage
           source={require('../assets/daily-goal-bg.png')}
           style={bgImageStyle}
           resizeMode="cover"
@@ -265,7 +267,7 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
             },
           ]}
         >
-          <Image
+          <AppImage
             source={require('../assets/daily-goal-ornament.png')}
             style={{ width: 16 * sx, height: 32 * sy }}
             resizeMode="contain"
@@ -284,7 +286,7 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
             {ARABIC_QUOTE}
           </Text>
           <View style={{ transform: [{ rotate: '180deg' }, { scaleY: -1 }] }}>
-            <Image
+            <AppImage
               source={require('../assets/daily-goal-ornament.png')}
               style={{ width: 16 * sx, height: 32 * sy }}
               resizeMode="contain"
@@ -329,49 +331,12 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
           },
         ]}
       >
-        <View
-          style={[
-            styles.motivationBar,
-            {
-              width: 310 * sx,
-              height: 46 * sy,
-              borderRadius: 10 * sx,
-              paddingHorizontal: 38 * sx,
-            },
-          ]}
-        >
-          <View style={[styles.bannerLeft, { left: 7 * sx, width: 37 * sx, height: 43 * sy, top: 2 * sy }]}>
-            <Image
-              source={require('../assets/daily-goal-banner-right.png')}
-              style={StyleSheet.absoluteFill}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
-          <View
-            style={[styles.bannerRight, { right: 10 * sx, width: 30 * sx, height: 38 * sy, top: 4 * sy }]}
-          >
-            <Image
-              source={require('../assets/daily-goal-banner-left.png')}
-              style={StyleSheet.absoluteFill}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
-          <Text style={[styles.motivationLine, { fontSize: 10 * sx, marginTop: 8 * sy }]}>
-            Small steps everyday lead to real growth
-          </Text>
-          <Text style={[styles.motivationLine, { fontSize: 10 * sx, marginTop: 2 * sy }]}>
-            May Allah put barakah in your time!
-          </Text>
-        </View>
-
-        <Pressable
+        <UiTapPressable
           onPress={handleContinue}
           disabled={!selected}
           onPressIn={onContinuePressIn}
           onPressOut={onContinuePressOut}
-          style={{ width: 310 * sx, height: (49 + 3) * sy, marginTop: 12 * sy, alignSelf: 'center' }}
+          style={{ width: 310 * sx, height: (49 + 3) * sy, alignSelf: 'center' }}
         >
           {selected && (
             <View
@@ -406,16 +371,16 @@ export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
               Continue
             </Text>
           </Animated.View>
-        </Pressable>
+        </UiTapPressable>
 
-        <Pressable
+        <UiTapPressable
           onPress={onSkipForNow}
           style={{ marginTop: 10 * sy, alignSelf: 'center', paddingVertical: 6 * sy }}
         >
           <Text style={{ fontFamily: 'Nunito_700Bold', fontSize: 14 * sx, color: '#fdce06' }}>
             Skip for now
           </Text>
-        </Pressable>
+        </UiTapPressable>
       </View>
     </View>
   );
@@ -482,23 +447,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 4,
     elevation: 10,
-  },
-  motivationBar: {
-    backgroundColor: '#ffe7ba',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'visible',
-  },
-  bannerLeft: {
-    position: 'absolute',
-  },
-  bannerRight: {
-    position: 'absolute',
-  },
-  motivationLine: {
-    fontFamily: 'Nunito_700Bold',
-    color: '#d3ae55',
-    textAlign: 'center',
   },
 });

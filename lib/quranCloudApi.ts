@@ -200,4 +200,47 @@ export async function fetchAyahRecitationPath(
   return rel ? ayahRecitationUrlFromApiPath(rel) : null;
 }
 
+export type LessonAyahWord = {
+  id: number;
+  position: number;
+  text: string;
+};
+
+export type LessonAyahData = {
+  verseKey: string;
+  textUthmani: string;
+  transliteration: string;
+  translation: string;
+  /** e.g. `-Qur'an 12:2` */
+  referenceLabel: string;
+  /** Full-ayah MP3 from Quran.com recitations API. */
+  audioUri: string | null;
+  words: LessonAyahWord[];
+};
+
+function verseKeyToReferenceLabel(verseKey: string): string {
+  const [surah, ayah] = verseKey.split(':');
+  if (!surah || !ayah) return verseKey;
+  return `-Qur'an ${surah}:${ayah}`;
+}
+
+/** Verse text + recitation audio for lesson screens (Quran.com v4). */
+export async function fetchLessonAyah(verseKey: string): Promise<LessonAyahData> {
+  const [data, audioUri] = await Promise.all([fetchAyahLabData(verseKey), fetchAyahRecitationPath(verseKey)]);
+  const transliteration = data.words
+    .map((w) => w.transliteration)
+    .filter((t) => t && t !== '—')
+    .join(' ')
+    .trim();
+  return {
+    verseKey: data.verseKey,
+    textUthmani: data.textUthmani,
+    transliteration: transliteration || '—',
+    translation: data.translation.startsWith('"') ? data.translation : `“${data.translation}”`,
+    referenceLabel: verseKeyToReferenceLabel(verseKey),
+    audioUri,
+    words: data.words.map((w) => ({ id: w.id, position: w.position, text: w.text })),
+  };
+}
+
 export { buildWordAudioUrl };

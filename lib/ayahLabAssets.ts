@@ -3,6 +3,7 @@ import type { SvgProps } from 'react-native-svg';
 
 import IconAudio from '../assets/ayah-lab/icon-audio.svg';
 import IconBookmark from '../assets/ayah-lab/icon-bookmark.svg';
+import IconBookmarkFilled from '../assets/ayah-lab/icon-bookmark-filled.svg';
 import IconGrammar from '../assets/ayah-lab/icon-grammar.svg';
 import IconReflection from '../assets/ayah-lab/icon-reflection.svg';
 import IconSun from '../assets/ayah-lab/icon-sun.svg';
@@ -22,6 +23,7 @@ export const ayahLabIcons = {
   reflection: IconReflection,
   audio: IconAudio,
   bookmark: IconBookmark,
+  bookmarkFilled: IconBookmarkFilled,
   sun: IconSun,
   tap: IconTap,
 } as const;

@@ -11,16 +11,16 @@ import { Nunito_700Bold, useFonts as useNunito } from '@expo-google-fonts/nunito
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import {
   Animated,
-  Image,
+
   Modal,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -30,12 +30,14 @@ import ScallopClock from '../assets/reminder-scallop-clock.svg';
 import IconBell from '../assets/reminder-icon-bell.svg';
 import IconClock from '../assets/reminder-icon-clock.svg';
 
+import { UiTapPressable } from './UiTapPressable';
+
 /** Figma “Track Screen” (reminders) — node 1160:3334 (393×852) */
 const FIGMA_W = 393;
 const FIGMA_H = 852;
 
 const ARABIC_HADITH =
-  'أَحَبُّ الْأَعْمَالِ إِلَى الله أدومها وَإِن قل';
+ ' أَحَبُّ الْأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ';
 const ENGLISH_HADITH =
   'The acts most pleasing to Allah are those which are done most continuously, even if they amount to little.';
 
@@ -71,7 +73,7 @@ function TrackSwitch({
 }) {
   const r = Math.min(sx, sy);
   return (
-    <Pressable
+    <UiTapPressable
       onPress={() => onValueChange(!value)}
       accessibilityRole="switch"
       accessibilityState={{ checked: value }}
@@ -99,7 +101,7 @@ function TrackSwitch({
           },
         ]}
       />
-    </Pressable>
+    </UiTapPressable>
   );
 }
 
@@ -192,7 +194,7 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
     <View style={styles.root}>
       {/* Decorative lanterns (Figma opacity 10%) */}
       <View style={[styles.lanternLeft, { left: 19 * sx, width: 80 * sx, height: 156 * sy, pointerEvents: 'none' }]}>
-        <Image
+        <AppImage
           source={require('../assets/reminder-lantern.png')}
           style={styles.lanternLeftImg}
           resizeMode="cover"
@@ -202,7 +204,7 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
       <View
         style={[styles.lanternRight, { top: -13 * sy, right: 9 * sx, width: 74 * sx, height: 255 * sy, pointerEvents: 'none' }]}
       >
-        <Image
+        <AppImage
           source={require('../assets/reminder-lantern.png')}
           style={styles.lanternRightImg}
           resizeMode="cover"
@@ -222,7 +224,7 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
           pointerEvents: 'none',
         }}
       >
-        <Image
+        <AppImage
           source={require('../assets/reminder-bg-bottom.png')}
           style={{
             position: 'absolute',
@@ -269,7 +271,7 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
             },
           ]}
         >
-          <Image
+          <AppImage
             source={require('../assets/reminder-ornament.png')}
             style={{ width: 16 * sx, height: 32 * sy }}
             resizeMode="contain"
@@ -288,7 +290,7 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
             {ARABIC_HADITH}
           </Text>
           <View style={{ transform: [{ rotate: '180deg' }, { scaleY: -1 }] }}>
-            <Image
+            <AppImage
               source={require('../assets/reminder-ornament.png')}
               style={{ width: 16 * sx, height: 32 * sy }}
               resizeMode="contain"
@@ -369,9 +371,9 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
                 {formatReminderTime(reminderTime)}
               </Text>
             </View>
-            <Pressable onPress={openTimePicker} hitSlop={8}>
+            <UiTapPressable onPress={openTimePicker} hitSlop={8}>
               <Text style={{ fontFamily: 'Nunito_700Bold', fontSize: 16 * sx, color: '#959e17' }}>Change</Text>
-            </Pressable>
+            </UiTapPressable>
           </View>
 
           {/* Streak Protection */}
@@ -391,7 +393,7 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
           >
             {iconCluster(
               <ScallopClock width={53 * sx} height={57 * sy} />,
-              <Image
+              <AppImage
                 source={require('../assets/reminder-icon-shield.png')}
                 style={{ width: 33 * sx, height: 33 * sy }}
                 resizeMode="contain"
@@ -419,7 +421,7 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
           },
         ]}
       >
-        <Pressable
+        <UiTapPressable
           onPressIn={onBtnIn}
           onPressOut={onBtnOut}
           onPress={handleEnable}
@@ -456,11 +458,11 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
               Enable Notifications
             </Text>
           </Animated.View>
-        </Pressable>
+        </UiTapPressable>
 
-        <Pressable onPress={onMaybeLater} style={{ marginTop: 9 * sy, alignSelf: 'center', paddingVertical: 6 * sy }}>
+        <UiTapPressable onPress={onMaybeLater} style={{ marginTop: 9 * sy, alignSelf: 'center', paddingVertical: 6 * sy }}>
           <Text style={{ fontFamily: 'Nunito_700Bold', fontSize: 14 * sx, color: '#7c711d' }}>Maybe Later</Text>
-        </Pressable>
+        </UiTapPressable>
       </View>
 
       {Platform.OS === 'android' && showTimePicker && (
@@ -481,15 +483,20 @@ export function ReminderScreen({ onEnableNotifications, onMaybeLater }: Props) {
           presentationStyle="overFullScreen"
         >
           <View style={styles.timeModalRoot}>
-            <Pressable style={styles.timeModalBackdrop} onPress={cancelIosTime} accessibilityLabel="Dismiss" />
+            <UiTapPressable
+              disableUiTapSound
+              style={styles.timeModalBackdrop}
+              onPress={cancelIosTime}
+              accessibilityLabel="Dismiss"
+            />
             <View style={styles.timeModalSheet}>
               <View style={styles.timeModalHeader}>
-                <Pressable onPress={cancelIosTime} hitSlop={12}>
+                <UiTapPressable onPress={cancelIosTime} hitSlop={12}>
                   <Text style={styles.timeModalCancelBtn}>Cancel</Text>
-                </Pressable>
-                <Pressable onPress={confirmIosTime} hitSlop={12}>
+                </UiTapPressable>
+                <UiTapPressable onPress={confirmIosTime} hitSlop={12}>
                   <Text style={styles.timeModalDoneBtn}>Done</Text>
-                </Pressable>
+                </UiTapPressable>
               </View>
               <DateTimePicker
                 value={iosPickerDraft}
