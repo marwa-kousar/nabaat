@@ -1,19 +1,21 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ChooseDailyGoalScreen } from './components/ChooseDailyGoalScreen';
 import { ChooseGoalScreen } from './components/ChooseGoalScreen';
 import { ChoosePathScreen, type LearningPathId } from './components/ChoosePathScreen';
-import { ExampleLessonFlowScreen } from './components/ExampleLessonFlowScreen';
-import { HomeScreen } from './components/HomeScreen';
+import { LessonFlowScreen } from './components/LessonFlowScreen';
+import { HomeScreen, type HomeTabKey } from './components/HomeScreen';
 import { LessonIntroScreen } from './components/LessonIntroScreen';
 import { ReminderScreen } from './components/ReminderScreen';
 import { SplashLayout } from './components/SplashLayout';
 import { StartScreen } from './components/StartScreen';
 import { getLessonAtIndices } from './lib/loadUnits';
+import { awardLessonSeedsFirstTime, initializeGrowthPoints } from './lib/growthPoints';
+import { ensureAppImagesPreloaded } from './lib/preloadAppImages';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -33,6 +35,9 @@ export default function App() {
   const [screen, setScreen] = useState<AppScreen>('splash');
   const [selectedLearningPath, setSelectedLearningPath] = useState<LearningPathId>('nahw');
   const [lessonFocus, setLessonFocus] = useState({ unitIndex: 0, lessonIndex: 0 });
+  const [homeInitialTab, setHomeInitialTab] = useState<HomeTabKey>('home');
+  const [growthPoints, setGrowthPoints] = useState(0);
+  const [growthPointsReady, setGrowthPointsReady] = useState(false);
   const startOpacity = useRef(new Animated.Value(0)).current;
   const chooseOpacity = useRef(new Animated.Value(0)).current;
   const goalOpacity = useRef(new Animated.Value(0)).current;
@@ -49,6 +54,7 @@ export default function App() {
   }, []);
 
   const handleSplashDone = useCallback(() => {
+    void ensureAppImagesPreloaded();
     setScreen('start');
     Animated.timing(startOpacity, {
       toValue: 1,
@@ -98,15 +104,40 @@ export default function App() {
     }).start();
   }, [reminderOpacity]);
 
-  const goToHome = useCallback(() => {
-    homeOpacity.setValue(0);
-    setScreen('home');
-    Animated.timing(homeOpacity, {
-      toValue: 1,
-      duration: 320,
-      useNativeDriver: true,
-    }).start();
-  }, [homeOpacity]);
+  const goToHome = useCallback(
+    (tab: HomeTabKey = 'home') => {
+      const nextTab: HomeTabKey =
+        tab === 'home' || tab === 'bolt' || tab === 'seed' || tab === 'chat' || tab === 'user' ? tab : 'home';
+      setHomeInitialTab(nextTab);
+      homeOpacity.setValue(0);
+      setScreen('home');
+      Animated.timing(homeOpacity, {
+        toValue: 1,
+        duration: 320,
+        useNativeDriver: true,
+      }).start();
+    },
+    [homeOpacity],
+  );
+
+  const goToHomeFromLesson = useCallback(
+    (lessonSeeds: number, lessonKey: string) => {
+      void awardLessonSeedsFirstTime(lessonKey, lessonSeeds).then(({ total }) => setGrowthPoints(total));
+      goToHome('home');
+    },
+    [goToHome],
+  );
+
+  useEffect(() => {
+    void initializeGrowthPoints().then((total) => {
+      setGrowthPoints(total);
+      setGrowthPointsReady(true);
+    });
+  }, []);
+
+  const goToAyahLabFromLesson = useCallback(() => {
+    goToHome('seed');
+  }, [goToHome]);
 
   const goToLessonFlow = useCallback(() => {
     lessonFlowOpacity.setValue(0);
@@ -117,16 +148,6 @@ export default function App() {
       useNativeDriver: true,
     }).start();
   }, [lessonFlowOpacity]);
-
-  const goBackToLessonIntro = useCallback(() => {
-    lessonOpacity.setValue(0);
-    setScreen('lessonIntro');
-    Animated.timing(lessonOpacity, {
-      toValue: 1,
-      duration: 320,
-      useNativeDriver: true,
-    }).start();
-  }, [lessonOpacity]);
 
   const goToLessonIntro = useCallback(
     (focus?: { unitIndex: number; lessonIndex: number }) => {
@@ -163,9 +184,11 @@ export default function App() {
               ? '#f1f4cb'
               : screen === 'home'
                 ? '#fef9f5'
-                : screen === 'lessonIntro' || screen === 'lessonFlow'
-                  ? '#fff8e8'
-                  : '#fff8e8';
+                : screen === 'lessonFlow'
+                  ? '#dcfff9'
+                  : screen === 'lessonIntro'
+                    ? '#fff8e8'
+                    : '#fff8e8';
 
   return (
     <SafeAreaProvider>
@@ -199,7 +222,10 @@ export default function App() {
         )}
         {screen === 'reminder' && (
           <Animated.View style={[StyleSheet.absoluteFill, { opacity: reminderOpacity }]}>
-            <ReminderScreen onEnableNotifications={goToHome} onMaybeLater={goToHome} />
+            <ReminderScreen
+              onEnableNotifications={() => goToHome('home')}
+              onMaybeLater={() => goToHome('home')}
+            />
           </Animated.View>
         )}
         {screen === 'home' && (
@@ -208,6 +234,8 @@ export default function App() {
               initialPath={selectedLearningPath}
               onActivePathChange={setSelectedLearningPath}
               isNewUser
+              growthPoints={growthPointsReady ? growthPoints : 0}
+              initialTab={homeInitialTab}
               onBeginLesson={goToLessonIntro}
             />
           </Animated.View>
@@ -219,19 +247,22 @@ export default function App() {
               unitIndex={lessonFocus.unitIndex}
               lessonIndex={lessonFocus.lessonIndex}
               isNewUser
-              onBack={goToHome}
+              onBack={() => goToHome('home')}
               onBegin={goToLessonFlow}
             />
           </Animated.View>
         )}
         {screen === 'lessonFlow' && (
           <Animated.View style={[StyleSheet.absoluteFill, { opacity: lessonFlowOpacity }]}>
-            <ExampleLessonFlowScreen
+            <LessonFlowScreen
               learningPath={selectedLearningPath}
+              unitIndex={lessonFocus.unitIndex}
+              lessonIndex={lessonFocus.lessonIndex}
               lessonTitleEn={lessonFlowTitles.titleEn}
               lessonTitleAr={lessonFlowTitles.titleAr}
-              onExit={goBackToLessonIntro}
-              onComplete={goToHome}
+              onExit={() => goToHome('home')}
+              onComplete={goToHomeFromLesson}
+              onExploreAyahLab={goToAyahLabFromLesson}
             />
           </Animated.View>
         )}

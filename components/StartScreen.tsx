@@ -10,8 +10,6 @@ import { useEffect, useRef } from 'react';
 import {
   Animated,
   Easing,
-  Image,
-  Pressable,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -19,6 +17,9 @@ import {
 } from 'react-native';
 
 import Svg, { Path } from 'react-native-svg';
+
+import { AppImage } from './AppImage';
+import { UiTapPressable } from './UiTapPressable';
 
 import MascotShadowLeft from '../assets/mascot-shadow-left.svg';
 import MascotShadowRight from '../assets/mascot-shadow-right.svg';
@@ -103,14 +104,14 @@ export function StartScreen({ onBismillah }: StartScreenProps) {
 
   return (
     <View style={styles.root}>
-      <Image
+      <AppImage
         source={require('../assets/start-bg-bottom.png')}
         style={box(-13, 444, 418, 432)}
         resizeMode="cover"
         accessibilityIgnoresInvertColors
       />
 
-      <Image
+      <AppImage
         source={require('../assets/start-mosque.png')}
         style={[box(-16, 413, 425, 177), styles.mosque]}
         resizeMode="contain"
@@ -118,7 +119,7 @@ export function StartScreen({ onBismillah }: StartScreenProps) {
       />
 
       <View style={[box(-38, 0, 468, 325), styles.clip]}>
-        <Image
+        <AppImage
           source={require('../assets/start-bg-top.png')}
           style={styles.bgTopImage}
           resizeMode="cover"
@@ -152,7 +153,7 @@ export function StartScreen({ onBismillah }: StartScreenProps) {
         Where Faith Meets Fluency
       </Text>
 
-      <Pressable
+      <UiTapPressable
         style={box(93, 342, 206, 54)}
         onPress={() => onBismillah?.()}
         onPressIn={onBtnPressIn}
@@ -208,7 +209,7 @@ export function StartScreen({ onBismillah }: StartScreenProps) {
             Bismillah
           </Text>
         </Animated.View>
-      </Pressable>
+      </UiTapPressable>
 
       <View style={[box(67.21, 744.41, 115.018, 19.89), { pointerEvents: 'none' }]}>
         <MascotShadowLeft width="100%" height="100%" />
@@ -216,7 +217,7 @@ export function StartScreen({ onBismillah }: StartScreenProps) {
       <Animated.View
         style={[box(11, 504, 226.577, 339), { transform: [{ translateY: translateL }], pointerEvents: 'none' }]}
       >
-        <Image
+        <AppImage
           source={require('../assets/mascot-nabta.png')}
           style={styles.fill}
           resizeMode="cover"
@@ -230,7 +231,7 @@ export function StartScreen({ onBismillah }: StartScreenProps) {
       <Animated.View
         style={[box(180, 485, 213.333, 320), { transform: [{ translateY: translateR }], pointerEvents: 'none' }]}
       >
-        <Image
+        <AppImage
           source={require('../assets/mascot-mateen.png')}
           style={styles.fill}
           resizeMode="cover"

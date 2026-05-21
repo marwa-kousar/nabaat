@@ -24,8 +24,249 @@
           "titleAr": "مَا هُوَ النَّحْوُ؟",
           "done": false,
           "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "The science of Arabic grammar — learn how words connect and sentences come alive."
+          "conceptsCount": 6,
+          "introDescription": "The science of Arabic grammar — learn how words connect and sentences come alive.",
+          "steps": [
+            {
+              "kind": "sentenceCompare",
+              "id": "what-is-nahw-compare",
+              "progress": 0.05,
+              "question": "Which sentence has a different meaning?",
+              "questionEmoji": "🪴",
+              "instruction": "Look closely at the words and their endings.",
+              "sentences": [
+                {
+                  "id": "sentence-a",
+                  "arabic": "أَكَلَ مُحَمَّدٌ التُّفَّاحَةَ",
+                  "transliteration": "Akala Muḥammadun at-tuffāḥata",
+                  "translation": "Muhammad ate the apple.",
+                  "audioKey": "sentence-a"
+                },
+                {
+                  "id": "sentence-b",
+                  "arabic": "أَكَلَتِ التُّفَّاحَةُ مُحَمَّدًا",
+                  "transliteration": "Akalat at-tuffāḥatu Muḥammadan",
+                  "translation": "The apple ate Muhammad.",
+                  "audioKey": "sentence-b"
+                }
+              ],
+              "choicePrompt": "Do these sentences mean the same thing?",
+              "options": [
+                { "id": "yes", "label": "Yes, the same", "correct": false },
+                { "id": "no", "label": "No, different", "correct": true }
+              ],
+              "feedback": {
+                "titleAr": "أَحْسَنْتَ!",
+                "titleEn": "Great observation!",
+                "message": "Something small changed, but the meaning is different.",
+                "rewardSeeds": 10
+              },
+              "wrongFeedback": {
+                "titleEn": "Not quite!",
+                "titleSub": "Look carefully at the endings.",
+                "message": "The words are the same, but the endings changed - and that changes the meaning."
+              }
+            },
+            {
+              "kind": "endingsReveal",
+              "id": "what-is-nahw-endings",
+              "progress": 0.18,
+              "progressRevealed": 0.23,
+              "headline": {
+                "title": "Exactly!",
+                "subtitle": "The endings changed."
+              },
+              "revealCard": {
+                "tapLabel": "What is Nahw?",
+                "tapHint": "Tap to Reveal",
+                "body": "Nahw (النَّحْوُ) is the study of how words function in a sentence and how their endings affect meaning in Arabic."
+              },
+              "sentences": [
+                {
+                  "id": "sentence-a",
+                  "arabic": "أَكَلَ مُحَمَّدٌ التُّفَّاحَةَ",
+                  "arabicSegments": [
+                    { "text": "أَكَلَ ", "color": "default" },
+                    { "text": "مُحَمَّد", "color": "default" },
+                    { "text": "ٌ", "color": "highlightAlt" },
+                    { "text": " التُّفَّاح", "color": "default" },
+                    { "text": "َةَ", "color": "highlightAlt2" }
+                  ],
+                  "transliteration": "Akala Muḥammadun at-tuffāḥata",
+                  "translation": "Muhammad ate the apple.",
+                  "audioKey": "sentence-a"
+                },
+                {
+                  "id": "sentence-b",
+                  "arabic": "أَكَلَتِ التُّفَّاحَةُ مُحَمَّدًا",
+                  "arabicSegments": [
+                    { "text": "أَكَلَ", "color": "default" },
+                    { "text": "تِ", "color": "highlight" },
+                    { "text": " التُّفَّاح", "color": "default" },
+                    { "text": "َةُ", "color": "highlight" },
+                    { "text": " مُحَمَّد", "color": "default" },
+                    { "text": "ًا", "color": "highlight" }
+                  ],
+                  "transliteration": "Akalat at-tuffāḥatu Muḥammadan",
+                  "translation": "The apple ate Muhammad.",
+                  "audioKey": "sentence-b"
+                }
+              ],
+              "footerInsight": {
+                "message": "It helps us understand how Arabic words connect and what role each one plays in a sentence, so we can read any Arabic text with real comprehension.",
+                "rewardSeeds": 5
+              }
+            },
+            {
+              "kind": "tapEndings",
+              "id": "what-is-nahw-tanween",
+              "progress": 0.38,
+              "headline": {
+                "title": "Tap the highlighted endings",
+                "subtitle": "and see what happens"
+              },
+              "tapPrompt": "Tap each ending:",
+              "example": {
+                "id": "daraba-zayd",
+                "arabic": "ضَرَبَ زَيْدٌ",
+                "arabicSegments": [
+                  { "text": "ضَرَبَ زَيْد", "color": "default" },
+                  { "text": "ٌ", "color": "endingBadge" }
+                ],
+                "transliteration": "Daraba Zaydun",
+                "translation": "Zayd hit.",
+                "audioKey": "daraba-zayd"
+              },
+              "endings": [
+                {
+                  "id": "dammatayn",
+                  "symbol": "ٌ",
+                  "symbolColor": "default",
+                  "arabicLabel": "ضَمَّتَيْنِ",
+                  "transliteration": "dammatayn",
+                  "preview": {
+                    "arabicSegments": [
+                      { "text": "ضَرَبَ ", "color": "default" },
+                      { "text": "زَيْدٌ", "color": "highlight" }
+                    ],
+                    "transliteration": "Daraba Zaydun",
+                    "translation": "Zayd hit."
+                  }
+                },
+                {
+                  "id": "kasratayn",
+                  "symbol": "ٍ",
+                  "symbolColor": "muted",
+                  "arabicLabel": "كَسْرَتَيْنِ",
+                  "transliteration": "kasratayn",
+                  "preview": {
+                    "arabicSegments": [
+                      { "text": "ضَرَبَ ", "color": "default" },
+                      { "text": "بِ", "color": "highlight" },
+                      { "text": "زَيْدٍ", "color": "highlight" }
+                    ],
+                    "transliteration": "Daraba bi-Zaydin",
+                    "translation": "He struck, with Zayd."
+                  }
+                },
+                {
+                  "id": "fathatayn",
+                  "symbol": "ً",
+                  "symbolColor": "muted",
+                  "arabicLabel": "فَتْحَتَيْنِ",
+                  "transliteration": "fathatayn",
+                  "preview": {
+                    "arabicSegments": [
+                      { "text": "ضَرَبَ ", "color": "default" },
+                      { "text": "زَيْدًا", "color": "highlight" }
+                    ],
+                    "transliteration": "Daraba Zaydan",
+                    "translation": "He hit Zayd."
+                  }
+                }
+              ],
+              "footerInsight": {
+                "titleAr": "بَارَكَ اللهُ فِيكَ!",
+                "message": "Changing the ending changes the role and sometimes the whole meaning!",
+                "rewardSeeds": 15
+              }
+            },
+            {
+              "kind": "whyNahw",
+              "id": "what-is-nahw-why",
+              "progress": 0.52,
+              "question": "Why do you think learning Nahw is important?",
+              "options": [
+                {
+                  "id": "quran",
+                  "label": "To understand the Qur'an",
+                  "correct": false,
+                  "icon": "quran"
+                },
+                {
+                  "id": "protect",
+                  "label": "It protects meaning from change",
+                  "correct": false,
+                  "icon": "shield"
+                },
+                {
+                  "id": "role",
+                  "label": "To know the role of each word",
+                  "correct": false,
+                  "icon": "lightbulb"
+                },
+                {
+                  "id": "all",
+                  "label": "All of the above",
+                  "correct": true,
+                  "icon": "all"
+                }
+              ],
+              "ayahVerseKey": "12:2",
+              "feedback": {
+                "titleAr": "جَمِيلٌ!",
+                "titleEn": "Beautiful!",
+                "message": "Nahw helps us protect the meaning and brings us closer to understanding the words of Allah",
+                "rewardSeeds": 10
+              }
+            },
+            {
+              "kind": "reflect",
+              "id": "what-is-nahw-reflect",
+              "progress": 0.65,
+              "title": "Think for a moment...",
+              "prompt": "Every small ending carries meaning.\n\nWhat might happen if we ignored these small changes?",
+              "inputPlaceholder": "Write your thoughts...",
+              "minChars": 3,
+              "feedback": {
+                "titleAr": "جَمِيلٌ!",
+                "titleEn": "Beautiful!",
+                "message": "Reflecting helps knowledge take root in the heart!",
+                "rewardSeeds": 10
+              }
+            },
+            {
+              "kind": "lessonComplete",
+              "id": "what-is-nahw-complete",
+              "lessonNumber": 1,
+              "title": "Masha'Allah!",
+              "subtitle": "You've completed Lesson 1!",
+              "learnedTitle": "Today you learned...",
+              "learned": [
+                "Nahw changes meaning",
+                "Word endings matter",
+                "Small harakat change meaning"
+              ],
+              "canNowTitle": "You can now...",
+              "canNow": ["Notice ending changes", "Compare simple Arabic changes"],
+              "rewards": {
+                "totalSeeds": 50,
+                "reflectionsSaved": 1,
+                "streakMaintained": true,
+                "streakMessageAr": "مَاشَاءَ اللهُ!"
+              }
+            }
+          ]
         },
         {
           "num": 2,

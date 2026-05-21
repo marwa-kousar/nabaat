@@ -9,13 +9,12 @@ import {
   useFonts as useNotoArabic,
 } from '@expo-google-fonts/noto-sans-arabic';
 import { Nunito_700Bold, Nunito_800ExtraBold, useFonts as useNunito } from '@expo-google-fonts/nunito';
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import {
   ActivityIndicator,
-  Image,
+  Animated,
   Modal,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,10 +22,10 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
+import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import HomeDotActive from '../assets/home-dot-active.svg';
-import HomeDotInactive from '../assets/home-dot-inactive.svg';
+
 import HomeLeaf from '../assets/home-leaf.svg';
 import HomeLeafIntermediate from '../assets/home-leaf-intermediate.svg';
 import HomeLock from '../assets/home-lock.svg';
@@ -48,6 +47,7 @@ import {
 } from './homeTabBarIcons';
 import { AyahLabScreen } from './AyahLabScreen';
 import { PathSwatchLetter } from './PathSwatchLetter';
+import { UiTapPressable } from './UiTapPressable';
 
 const FIGMA_W = 393;
 const HEADER_LETTER_SCALE = 0.55;
@@ -66,6 +66,29 @@ export type UserResumeSnapshot = {
 
 type TabKey = 'home' | 'bolt' | 'seed' | 'chat' | 'user';
 
+const TAB_KEYS: TabKey[] = ['home', 'bolt', 'seed', 'chat', 'user'];
+
+export type HomeTabKey = TabKey;
+
+function tabIndexFor(key: TabKey): number {
+  const i = TAB_KEYS.indexOf(key);
+  return i >= 0 ? i : 0;
+}
+
+/** Subtle scale pop when a tab becomes active. */
+function AnimatedTabIcon({ active, children }: { active: boolean; children: ReactNode }) {
+  const scale = useRef(new Animated.Value(active ? 1.08 : 1)).current;
+  useEffect(() => {
+    Animated.spring(scale, {
+      toValue: active ? 1.1 : 1,
+      tension: 380,
+      friction: 14,
+      useNativeDriver: true,
+    }).start();
+  }, [active, scale]);
+  return <Animated.View style={{ transform: [{ scale }] }}>{children}</Animated.View>;
+}
+
 export type HomeScreenProps = {
   /** Path chosen during onboarding; home can switch locally without mutating this. */
   initialPath?: LearningPathId;
@@ -81,6 +104,8 @@ export type HomeScreenProps = {
   growthPoints?: number;
   /** Opens lesson intro; passes the same unit/lesson indices as the resume card. */
   onBeginLesson?: (focus: { unitIndex: number; lessonIndex: number }) => void;
+  /** When set (e.g. after lesson complete), opens this tab on mount. */
+  initialTab?: HomeTabKey;
 };
 
 const DEFAULT_RESUME: UserResumeSnapshot = {
@@ -104,6 +129,7 @@ export function HomeScreen({
   streakCount,
   growthPoints,
   onBeginLesson,
+  initialTab,
 }: HomeScreenProps) {
   const { width: W } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -111,6 +137,10 @@ export function HomeScreen({
   const [activePath, setActivePath] = useState<LearningPathId>(initialPath);
   const [pathModalOpen, setPathModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('home');
+  const [tabBarInnerWidth, setTabBarInnerWidth] = useState(0);
+  const tabIndicatorIndex = useRef(new Animated.Value(tabIndexFor('home'))).current;
+  const tabContentOpacity = useRef(new Animated.Value(1)).current;
+  const tabSwitchLock = useRef(false);
   const [expandedUnit, setExpandedUnit] = useState<string | null>('0');
   /** When false, path card lists only the first unit; "View all units" reveals the rest. */
   const [showFullUnitList, setShowFullUnitList] = useState(false);
@@ -147,6 +177,53 @@ export function HomeScreen({
   useEffect(() => {
     setActivePath(initialPath);
   }, [initialPath]);
+
+  useEffect(() => {
+    if (
+      initialTab === 'home' ||
+      initialTab === 'bolt' ||
+      initialTab === 'seed' ||
+      initialTab === 'chat' ||
+      initialTab === 'user'
+    ) {
+      setActiveTab(initialTab);
+      tabIndicatorIndex.setValue(tabIndexFor(initialTab));
+    }
+  }, [initialTab, tabIndicatorIndex]);
+
+  const changeTab = useCallback(
+    (tab: TabKey) => {
+      if (tab === activeTab || tabSwitchLock.current) return;
+      tabSwitchLock.current = true;
+      Animated.timing(tabContentOpacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (!finished) {
+          tabSwitchLock.current = false;
+          return;
+        }
+        setActiveTab(tab);
+        Animated.parallel([
+          Animated.timing(tabContentOpacity, {
+            toValue: 1,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+          Animated.spring(tabIndicatorIndex, {
+            toValue: tabIndexFor(tab),
+            tension: 320,
+            friction: 28,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          tabSwitchLock.current = false;
+        });
+      });
+    },
+    [activeTab, tabContentOpacity, tabIndicatorIndex],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -192,6 +269,17 @@ export function HomeScreen({
   const tabBarH = r(61, s);
   const tabBarBottom = Math.max(r(16, s), insets.bottom);
   const scrollBottomPad = tabBarBottom + tabBarH + r(24, s);
+  const tabIndicatorSize = r(44, s);
+  const tabSlotWidth = tabBarInnerWidth > 0 ? tabBarInnerWidth / TAB_KEYS.length : 0;
+  const tabIndicatorInset = tabSlotWidth > 0 ? (tabSlotWidth - tabIndicatorSize) / 2 : 0;
+  const tabIndicatorTranslateX =
+    tabSlotWidth > 0
+      ? tabIndicatorIndex.interpolate({
+          inputRange: TAB_KEYS.map((_, i) => i),
+          outputRange: TAB_KEYS.map((_, i) => i * tabSlotWidth + tabIndicatorInset),
+        })
+      : 0;
+  const tabIndicatorTop = (tabBarH - tabIndicatorSize) / 2;
 
   const cardShadow: ViewStyle =
     Platform.select<ViewStyle>({
@@ -211,72 +299,76 @@ export function HomeScreen({
     return <View style={styles.root} />;
   }
 
+  const hidePathwayHeader = activeTab === 'seed' || activeTab === 'user';
+
   return (
     <View style={styles.root}>
-      {unitsLoading && (
+      {unitsLoading && activeTab === 'home' && (
         <View style={[styles.loadingOverlay, { paddingTop: insets.top }]}>
           <ActivityIndicator size="large" color={theme.primary} accessibilityLabel="Loading units" />
         </View>
       )}
 
-      <View
-        style={[
-          styles.stickyTopBar,
-          {
-            paddingTop: insets.top,
-          },
-        ]}
-      >
-        <View style={[styles.header, { paddingHorizontal: r(22, s), paddingTop: r(10, s), paddingBottom: r(8, s) }]}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Active path: ${theme.titleEn}. Tap to switch course`}
-            style={styles.headerLeft}
-            onPress={() => setPathModalOpen(true)}
-          >
-            <View
-              style={[
-                styles.nunBox,
-                { width: letterBox, height: letterBox, borderRadius: r(13, s), backgroundColor: theme.swatchBg },
-              ]}
+      {!hidePathwayHeader ? (
+        <View
+          style={[
+            styles.stickyTopBar,
+            {
+              paddingTop: insets.top,
+            },
+          ]}
+        >
+          <View style={[styles.header, { paddingHorizontal: r(22, s), paddingTop: r(10, s), paddingBottom: r(8, s) }]}>
+            <UiTapPressable
+              accessibilityRole="button"
+              accessibilityLabel={`Active path: ${theme.titleEn}. Tap to switch course`}
+              style={styles.headerLeft}
+              onPress={() => setPathModalOpen(true)}
             >
-              <PathSwatchLetter
-                letterIcon={pathOption?.letterIcon}
-                letter={pathOption?.letter}
-                width={letterIconSize}
-                height={letterIconSize}
-              />
-            </View>
-            <Text
-              style={[styles.pathTitle, { fontSize: r(24, s), lineHeight: r(28, s), marginLeft: r(10, s), color: theme.headerText }]}
-            >
-              {theme.titleEn}
-            </Text>
-            <Text style={[styles.chevronPath, { fontSize: r(18, s), marginLeft: r(2, s), color: theme.headerText }]}>⌄</Text>
-          </Pressable>
+              <View
+                style={[
+                  styles.nunBox,
+                  { width: letterBox, height: letterBox, borderRadius: r(13, s), backgroundColor: theme.swatchBg },
+                ]}
+              >
+                <PathSwatchLetter
+                  letterIcon={pathOption?.letterIcon}
+                  letter={pathOption?.letter}
+                  width={letterIconSize}
+                  height={letterIconSize}
+                />
+              </View>
+              <Text
+                style={[styles.pathTitle, { fontSize: r(24, s), lineHeight: r(28, s), marginLeft: r(10, s), color: theme.headerText }]}
+              >
+                {theme.titleEn}
+              </Text>
+              <View style={{ width: r(9, s), height: r(9, s), borderRightWidth: 2, borderBottomWidth: 2, borderColor: theme.headerText, transform: [{ rotate: '45deg' }], marginLeft: r(6, s), marginBottom: r(4, s) }} />
+            </UiTapPressable>
 
-          <View style={styles.headerRight}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Current streak, ${displayStreak} days`}
-              style={[styles.statPill, { gap: r(4, s) }]}
-            >
-              <HomeStreakFlame width={r(20, s)} height={r(20, s)} />
-              <Text style={[styles.streakNum, { fontSize: r(16, s) }]}>{displayStreak}</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Nabaat points, ${displayGrowthPoints}`}
-              style={[styles.statPill, { gap: r(4, s) }]}
-            >
-              <HomePointsLeaf width={r(20, s)} height={r(20, s)} />
-              <Text style={[styles.pointsNum, { fontSize: r(16, s) }]}>{displayGrowthPoints}</Text>
-            </Pressable>
+            <View style={styles.headerRight}>
+              <UiTapPressable
+                accessibilityRole="button"
+                accessibilityLabel={`Current streak, ${displayStreak} days`}
+                style={[styles.statPill, { gap: r(4, s) }]}
+              >
+                <HomeStreakFlame width={r(20, s)} height={r(20, s)} />
+                <Text style={[styles.streakNum, { fontSize: r(16, s) }]}>{displayStreak}</Text>
+              </UiTapPressable>
+              <UiTapPressable
+                accessibilityRole="button"
+                accessibilityLabel={`Nabaat points, ${displayGrowthPoints}`}
+                style={[styles.statPill, { gap: r(4, s) }]}
+              >
+                <HomePointsLeaf width={r(20, s)} height={r(20, s)} />
+                <Text style={[styles.pointsNum, { fontSize: r(16, s) }]}>{displayGrowthPoints}</Text>
+              </UiTapPressable>
+            </View>
           </View>
         </View>
-      </View>
+      ) : null}
 
-      <View style={styles.mainPane}>
+      <Animated.View style={[styles.mainPane, { opacity: tabContentOpacity }]}>
         {activeTab === 'home' ? (
           <ScrollView
             style={styles.scrollMain}
@@ -285,13 +377,17 @@ export function HomeScreen({
             bounces
           >
         {/* ── Hero / Welcome section ── */}
-        <View style={{ height: r(190, s), overflow: 'hidden', position: 'relative' }}>
-          <Image
-            source={require('../assets/home-hero-desert.png')}
-            style={{ position: 'absolute', left: r(-5, s), top: 0, width: r(530, s), height: r(238, s) }}
-            resizeMode="cover"
-            accessibilityIgnoresInvertColors
-          />
+        <View style={{ height: r(190, s), position: 'relative', overflow: 'visible' }}>
+          <View style={StyleSheet.absoluteFillObject}>
+            <View style={{ flex: 1, overflow: 'hidden' }}>
+              <AppImage
+                source={require('../assets/home-hero-desert.png')}
+                style={{ position: 'absolute', left: r(-5, s), top: 0, width: r(530, s), height: r(238, s) }}
+                resizeMode="cover"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
+          </View>
           <View style={{ position: 'absolute', left: r(22, s), top: r(16, s), width: r(215, s) }}>
             <Text style={[styles.greeting, { fontSize: r(16, s), lineHeight: r(22, s) }]}>
               Assalamu &apos;Alaykum, Marwa!
@@ -300,15 +396,25 @@ export function HomeScreen({
               Your journey begins today
             </Text>
           </View>
-          <View style={{ position: 'absolute', right: r(18, s), top: r(8, s), width: r(97, s), height: r(132, s), overflow: 'hidden' }}>
-            <Image
+          <View
+            style={{
+              position: 'absolute',
+              right: r(25, s),
+              bottom: r(-42, s),
+              width: r(108, s),
+              height: r(168, s),
+              zIndex: 2,
+              overflow: 'visible',
+            }}
+          >
+            <AppImage
               source={require('../assets/home-nabta-hero.png')}
               style={{
                 position: 'absolute',
-                width: r(151, s),
-                height: r(227, s),
-                left: r(-27, s),
-                top: r(-40, s),
+                width: r(158, s),
+                height: r(238, s),
+                left: r(-30, s),
+                bottom: 0,
               }}
               resizeMode="cover"
               accessibilityIgnoresInvertColors
@@ -320,7 +426,14 @@ export function HomeScreen({
         <View
           style={[
             styles.card,
-            { marginHorizontal: r(22, s), borderRadius: r(21, s), padding: r(20, s), marginTop: r(4, s), ...cardShadow },
+            {
+              marginHorizontal: r(22, s),
+              borderRadius: r(21, s),
+              padding: r(20, s),
+              marginTop: r(-25, s),
+              zIndex: 1,
+              ...cardShadow,
+            },
           ]}
         >
           <Text style={[styles.continueLabel, { fontSize: r(12, s), marginBottom: r(4, s), color: theme.continueLabel }]}>
@@ -380,7 +493,7 @@ export function HomeScreen({
             ) : null}
           </View>
 
-          <Pressable
+          <UiTapPressable
             accessibilityRole="button"
             accessibilityLabel={resumeA11y}
             onPress={() =>
@@ -399,7 +512,7 @@ export function HomeScreen({
             ]}
           >
             <Text style={[styles.resumeBtnText, { fontSize: r(14, s) }]}>{resumeCta}</Text>
-          </Pressable>
+          </UiTapPressable>
         </View>
 
         {/* ── Learning path section ── */}
@@ -410,7 +523,7 @@ export function HomeScreen({
           </Text>
         </View>
 
-        <View style={[styles.pathCard, { marginHorizontal: r(22, s), borderRadius: r(15, s), ...cardShadow }]}>
+        <View style={[styles.card, styles.pathCard, { marginHorizontal: r(22, s), borderRadius: r(15, s), ...cardShadow }]}>
           {visibleUnits.map((u, i) => {
             const LeafIcon = u.leafIntermediate ? HomeLeafIntermediate : HomeLeaf;
             const isLast = i === visibleUnits.length - 1;
@@ -418,7 +531,7 @@ export function HomeScreen({
 
             return (
               <View key={`${activePath}-${u.num}`}>
-                <Pressable
+                <UiTapPressable
                   disabled={u.locked}
                   onPress={() => {
                     if (u.locked) return;
@@ -442,7 +555,7 @@ export function HomeScreen({
 
                     <View style={styles.unitContent}>
                       <Text style={[styles.unitTitleEn, { fontSize: r(15, s), lineHeight: r(20, s) }]}>{u.titleEn}</Text>
-                      <Text style={[styles.unitTitleAr, { fontSize: r(13, s), lineHeight: r(20, s), color: u.arabicColor }]}>
+                      <Text style={[styles.unitTitleAr, { fontSize: r(13, s), lineHeight: r(24, s), color: u.arabicColor }]}>
                         {u.titleAr}
                       </Text>
                       <View style={styles.unitMeta2}>
@@ -458,83 +571,76 @@ export function HomeScreen({
                         <HomeLock width={r(22, s)} height={r(22, s)} />
                       ) : (
                         <Text
-                          style={[styles.chevronPath, { fontSize: r(20, s), color: theme.headerText, transform: [{ rotate: isOpen ? '-90deg' : '90deg' }] }]}
+                          style={[styles.chevronPath, { fontSize: r(20, s), color: theme.headerText, transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }]}
                         >
-                          ›
+                          ⌄
                         </Text>
                       )}
                     </View>
                   </View>
-                </Pressable>
+                </UiTapPressable>
 
                 {isOpen && (
                   <View style={[styles.lessonList, { paddingHorizontal: r(14, s), paddingBottom: r(12, s) }]}>
-                    {u.lessons.map((lesson) => (
-                      <Pressable
-                        key={lesson.num}
-                        accessibilityRole="button"
-                        accessibilityLabel={
-                          lesson.titleAr
-                            ? `Lesson ${lesson.num}: ${lesson.title}. ${lesson.titleAr}`
-                            : `Lesson ${lesson.num}: ${lesson.title}`
-                        }
-                        style={({ pressed }) => [
-                          styles.lessonRow,
-                          { opacity: pressed ? 0.7 : 1, paddingVertical: r(10, s), marginLeft: r(56, s) },
-                        ]}
-                      >
-                        <View style={{ paddingTop: r(4, s) }}>
-                          <View
-                            style={[
-                              styles.lessonDot,
-                              { width: r(8, s), height: r(8, s), borderRadius: r(4, s), backgroundColor: theme.primary },
-                            ]}
-                          />
-                        </View>
-                        <View style={{ flex: 1, marginLeft: r(10, s) }}>
-                          <Text style={[styles.lessonNum, { fontSize: r(11, s) }]}>Lesson {lesson.num}</Text>
-                          <Text style={[styles.lessonTitle, { fontSize: r(13, s) }]}>{lesson.title}</Text>
-                          {lesson.titleAr ? (
-                            <Text
-                              style={[
-                                styles.lessonTitleArRow,
-                                {
-                                  fontSize: r(12, s),
-                                  lineHeight: r(18, s),
-                                  marginTop: r(2, s),
-                                  color: theme.lessonTitleAr,
-                                  ...textPad,
-                                },
-                              ]}
-                            >
-                              {lesson.titleAr}
-                            </Text>
-                          ) : null}
-                        </View>
-                        <Text
-                          style={[
-                            styles.chevronPath,
-                            { fontSize: r(16, s), color: theme.headerText, alignSelf: 'center' },
+                    {u.lessons.map((lesson, lessonIdx) => {
+                      const isCurrent = i === resumeSnapshot.unitIndex && lessonIdx === resumeSnapshot.lessonIndex;
+                      return (
+                        <UiTapPressable
+                          key={lesson.num}
+                          accessibilityRole="button"
+                          accessibilityLabel={
+                            lesson.titleAr
+                              ? `Lesson ${lesson.num}: ${lesson.title}. ${lesson.titleAr}`
+                              : `Lesson ${lesson.num}: ${lesson.title}`
+                          }
+                          onPress={isCurrent ? () => onBeginLesson?.({ unitIndex: i, lessonIndex: lessonIdx }) : undefined}
+                          style={({ pressed }) => [
+                            styles.lessonRow,
+                            { opacity: pressed ? 0.7 : 1, paddingVertical: r(10, s), marginLeft: r(56, s) },
                           ]}
                         >
-                          ›
-                        </Text>
-                      </Pressable>
-                    ))}
+                          <View style={{ paddingTop: r(4, s) }}>
+                            <View
+                              style={[
+                                styles.lessonDot,
+                                { width: r(8, s), height: r(8, s), borderRadius: r(4, s), backgroundColor: theme.primary },
+                              ]}
+                            />
+                          </View>
+                          <View style={{ flex: 1, marginLeft: r(10, s) }}>
+                            <Text style={[styles.lessonNum, { fontSize: r(11, s) }]}>Lesson {lesson.num}</Text>
+                            <Text style={[styles.lessonTitle, { fontSize: r(13, s) }]}>{lesson.title}</Text>
+                            {lesson.titleAr ? (
+                              <Text
+                                style={[
+                                  styles.lessonTitleArRow,
+                                  {
+                                    fontSize: r(12, s),
+                                    lineHeight: r(22, s),
+                                    marginTop: r(2, s),
+                                    color: theme.lessonTitleAr,
+                                    ...textPad,
+                                  },
+                                ]}
+                              >
+                                {lesson.titleAr}
+                              </Text>
+                            ) : null}
+                          </View>
+                          {isCurrent && (
+                            <View style={{ backgroundColor: theme.primary, borderRadius: r(6, s), paddingHorizontal: r(10, s), paddingVertical: r(4, s), alignSelf: 'center' }}>
+                              <Text style={{ fontFamily: 'Nunito_700Bold', fontSize: r(11, s), color: '#fff' }}>Start</Text>
+                            </View>
+                          )}
+                        </UiTapPressable>
+                      );
+                    })}
                   </View>
                 )}
 
                 {!isLast && (
                   <View style={[styles.connector, { paddingHorizontal: r(14, s) }]}>
-                    <View style={[styles.connectorLeft, { width: r(44, s), marginRight: r(12, s) }]}>
-                      <View style={{ width: r(44, s), alignItems: 'center' }}>
-                        {u.active ? (
-                          <HomeDotActive width={r(9, s)} height={r(9, s)} />
-                        ) : (
-                          <HomeDotInactive width={r(9, s)} height={r(9, s)} />
-                        )}
-                      </View>
-                    </View>
+                    <View style={[styles.connectorLeft, { width: r(44, s), marginRight: r(12, s) }]} />
                     <View style={styles.divider} />
                   </View>
                 )}
@@ -545,7 +651,7 @@ export function HomeScreen({
           {hasMultipleUnits ? (
             <View style={[styles.viewAllRow, { paddingVertical: r(14, s) }]}>
               <View style={[styles.dividerFull, { marginBottom: r(14, s) }]} />
-              <Pressable
+              <UiTapPressable
                 onPress={toggleViewAllUnits}
                 accessibilityRole="button"
                 accessibilityLabel={showFullUnitList ? 'Show fewer units' : 'View all units'}
@@ -561,24 +667,13 @@ export function HomeScreen({
                 <Text style={[styles.viewAllText, { fontSize: r(12, s), color: theme.primaryDark }]}>
                   {showFullUnitList ? 'Show less' : 'View all units'}
                 </Text>
-                <Text
-                  style={[
-                    styles.chevronPath,
-                    {
-                      fontSize: r(16, s),
-                      color: theme.primaryDark,
-                      transform: [{ rotate: showFullUnitList ? '0deg' : '180deg' }],
-                    },
-                  ]}
-                >
-                  ⌄
-                </Text>
-              </Pressable>
+                <View style={{ width: r(7, s), height: r(7, s), borderRightWidth: 2, borderBottomWidth: 2, borderColor: theme.primaryDark, transform: [{ rotate: showFullUnitList ? '225deg' : '45deg' }], marginBottom: showFullUnitList ? 0 : r(3, s) }} />
+              </UiTapPressable>
             </View>
           ) : null}
         </View>
 
-        <Pressable
+        <UiTapPressable
           accessibilityRole="button"
           accessibilityLabel="Open Takrār — daily reflection"
           style={({ pressed }) => [
@@ -595,7 +690,7 @@ export function HomeScreen({
             <Text style={[styles.takrarDesc, { fontSize: r(10, s) }]}>Review what you&apos;ve learned</Text>
           </View>
           <Text style={[styles.chevronGray, { fontSize: r(20, s) }]}>›</Text>
-        </Pressable>
+        </UiTapPressable>
 
       </ScrollView>
         ) : activeTab === 'seed' ? (
@@ -609,7 +704,7 @@ export function HomeScreen({
               unitLabel: resumeUnit ? `Unit ${resumeUnit.num}` : undefined,
               ayahRef: 'Surah 2 · 183',
               onOpenLesson: () => {
-                setActiveTab('home');
+                changeTab('home');
                 onBeginLesson?.({
                   unitIndex: resumeSnapshot.unitIndex,
                   lessonIndex: resumeSnapshot.lessonIndex,
@@ -618,7 +713,16 @@ export function HomeScreen({
             }}
           />
         ) : (
-          <View style={[styles.comingSoonPane, { paddingBottom: scrollBottomPad, paddingHorizontal: r(28, s) }]}>
+          <View
+            style={[
+              styles.comingSoonPane,
+              {
+                paddingBottom: scrollBottomPad,
+                paddingHorizontal: r(28, s),
+                paddingTop: activeTab === 'user' ? insets.top + r(12, s) : 0,
+              },
+            ]}
+          >
             <Text style={[styles.comingSoonTitle, { fontSize: r(18, s), color: theme.primaryDark }]}>Coming soon</Text>
             <Text style={[styles.comingSoonBody, { fontSize: r(14, s), lineHeight: r(21, s), marginTop: r(10, s), color: '#64748b' }]}>
               {activeTab === 'bolt'
@@ -629,7 +733,7 @@ export function HomeScreen({
             </Text>
           </View>
         )}
-      </View>
+      </Animated.View>
 
       <View
         style={[
@@ -644,48 +748,61 @@ export function HomeScreen({
           },
         ]}
       >
-        {(
-          [
-            { key: 'home' as TabKey, label: 'Home', Icon: TabHomeIcon },
-            { key: 'bolt' as TabKey, label: 'Practice', Icon: TabBoltIcon },
-            { key: 'seed' as TabKey, label: 'Grow', Icon: TabSeedlingIcon },
-            { key: 'chat' as TabKey, label: 'Chat', Icon: TabChatIcon },
-            { key: 'user' as TabKey, label: 'Profile', Icon: TabUserIcon },
-          ] as const satisfies ReadonlyArray<{ key: TabKey; label: string; Icon: ComponentType<TabBarIconProps> }>
-        ).map((item, i, arr) => {
-          const isActive = activeTab === item.key;
-          const isSeed = item.key === 'seed';
-          const iconSize = r(24, s);
-          const TabIcon = item.Icon;
-          return (
-            <Pressable
-              key={item.key}
-              accessibilityRole="tab"
-              accessibilityLabel={item.key === 'seed' ? 'Grow — Ayah Lab' : item.label}
-              accessibilityState={{ selected: isActive }}
-              onPress={() => setActiveTab(item.key)}
-              style={({ pressed }) => [
-                styles.tabItem,
+        <View
+          style={styles.tabBarInner}
+          onLayout={(e) => setTabBarInnerWidth(e.nativeEvent.layout.width)}
+        >
+          {tabSlotWidth > 0 ? (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.tabIndicator,
                 {
-                  marginRight: i < arr.length - 1 ? r(-40, s) : 0,
-                  paddingHorizontal: r(25, s),
-                  paddingVertical: r(10, s),
-                  opacity: pressed ? 0.75 : 1,
+                  width: tabIndicatorSize,
+                  height: tabIndicatorSize,
+                  top: tabIndicatorTop,
+                  borderRadius: tabIndicatorSize / 2,
+                  backgroundColor: `${theme.primary}2E`,
+                  transform: [{ translateX: tabIndicatorTranslateX }],
                 },
               ]}
-            >
-              <View
-                style={[
-                  styles.tabIconWrap,
-                  { padding: r(12, s), borderRadius: r(40, s) },
-                  !isActive && isSeed && { borderWidth: r(1.5, s), borderColor: '#9db2ce' },
+            />
+          ) : null}
+          {(
+            [
+              { key: 'home' as TabKey, label: 'Home', Icon: TabHomeIcon },
+              { key: 'bolt' as TabKey, label: 'Practice', Icon: TabBoltIcon },
+              { key: 'seed' as TabKey, label: 'Grow', Icon: TabSeedlingIcon },
+              { key: 'chat' as TabKey, label: 'Chat', Icon: TabChatIcon },
+              { key: 'user' as TabKey, label: 'Profile', Icon: TabUserIcon },
+            ] as const satisfies ReadonlyArray<{ key: TabKey; label: string; Icon: ComponentType<TabBarIconProps> }>
+          ).map((item) => {
+            const isActive = activeTab === item.key;
+            const iconSize = r(24, s);
+            const TabIcon = item.Icon;
+            return (
+              <UiTapPressable
+                key={item.key}
+                accessibilityRole="tab"
+                accessibilityLabel={item.key === 'seed' ? 'Grow — Ayah Lab' : item.label}
+                accessibilityState={{ selected: isActive }}
+                onPress={() => changeTab(item.key)}
+                style={({ pressed }) => [
+                  styles.tabItem,
+                  {
+                    flex: 1,
+                    paddingVertical: r(10, s),
+                    opacity: pressed ? 0.85 : 1,
+                  },
                 ]}
               >
-                <TabIcon size={iconSize} active={isActive} color={theme.primary} />
-              </View>
-            </Pressable>
-          );
-        })}
+                <AnimatedTabIcon active={isActive}>
+                  <TabIcon size={iconSize} active={isActive} color={theme.primary} />
+                </AnimatedTabIcon>
+              </UiTapPressable>
+            );
+          })}
+        </View>
       </View>
 
       <Modal
@@ -695,13 +812,17 @@ export function HomeScreen({
         onRequestClose={() => setPathModalOpen(false)}
       >
         <View style={styles.modalRoot}>
-          <Pressable style={styles.modalBackdropFill} onPress={() => setPathModalOpen(false)} />
+          <UiTapPressable
+            disableUiTapSound
+            style={styles.modalBackdropFill}
+            onPress={() => setPathModalOpen(false)}
+          />
           <View style={[styles.modalSheet, { marginHorizontal: r(22, s), borderRadius: r(16, s), padding: r(16, s) }]}>
             <Text style={[styles.modalTitle, { fontSize: r(16, s), marginBottom: r(12, s) }]}>Switch course</Text>
             {PATH_OPTIONS.map((opt) => {
               const selected = opt.id === activePath;
               return (
-                <Pressable
+                <UiTapPressable
                   key={opt.id}
                   onPress={() => onPathChanged(opt.id)}
                   style={({ pressed }) => [
@@ -715,13 +836,15 @@ export function HomeScreen({
                     },
                   ]}
                 >
-                  <View style={[styles.pathRowSwatch, { backgroundColor: opt.swatch, width: r(36, s), height: r(36, s), borderRadius: r(10, s) }]} />
+                  <View style={[styles.pathRowSwatch, { backgroundColor: opt.swatch, width: r(36, s), height: r(36, s), borderRadius: r(10, s), alignItems: 'center', justifyContent: 'center' }]}>
+                    <PathSwatchLetter letterIcon={opt.letterIcon} letter={opt.letter} width={r(36, s) * HEADER_LETTER_SCALE} height={r(36, s) * HEADER_LETTER_SCALE} />
+                  </View>
                   <View style={{ flex: 1, marginLeft: r(12, s) }}>
                     <Text style={[styles.pathRowTitle, { fontSize: r(16, s) }]}>{opt.titleEn}</Text>
                     <Text style={[styles.pathRowSub, { fontSize: r(11, s), marginTop: 2 }]}>{opt.subtitle}</Text>
                   </View>
-                  {selected ? <Text style={{ fontFamily: 'Nunito_800ExtraBold', color: opt.swatch }}>✓</Text> : null}
-                </Pressable>
+                  <Text style={{ fontFamily: 'Nunito_700Bold', fontSize: r(11, s), color: opt.swatch }}>0%</Text>
+                </UiTapPressable>
               );
             })}
           </View>
@@ -736,16 +859,6 @@ const styles = StyleSheet.create({
   stickyTopBar: {
     backgroundColor: '#fef9f5',
     zIndex: 10,
-    ...Platform.select<ViewStyle>({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-      },
-      android: { elevation: 3 },
-      default: {},
-    }),
   },
   scrollMain: { flex: 1 },
   mainPane: { flex: 1 },
@@ -760,7 +873,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
 
-  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef9f5' },
+  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'transparent' },
   headerLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   nunBox: { alignItems: 'center', justifyContent: 'center' },
@@ -800,7 +913,9 @@ const styles = StyleSheet.create({
   sectionTitle: { fontFamily: 'Nunito_700Bold', color: '#000' },
   completeLabel: { fontFamily: 'Nunito_700Bold', letterSpacing: 0.5 },
 
-  pathCard: { backgroundColor: '#fff', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)', overflow: 'hidden' },
+  pathCard: {
+    overflow: 'hidden',
+  },
   unitRow: { flexDirection: 'row', alignItems: 'center' },
   connectorCol: { alignItems: 'center' },
   connectorLeft: { alignItems: 'center' },
@@ -815,7 +930,7 @@ const styles = StyleSheet.create({
   unitTag: { fontFamily: 'Fredoka_500Medium' },
   unitRight: { alignItems: 'center', justifyContent: 'center' },
 
-  lessonList: { backgroundColor: '#f9fffe' },
+  lessonList: { backgroundColor: '#fff' },
   lessonRow: { flexDirection: 'row', alignItems: 'flex-start' },
   lessonDot: {},
   lessonNum: { fontFamily: 'Nunito_700Bold', color: '#737373' },
@@ -840,16 +955,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.1)',
-    flexDirection: 'row',
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.09,
     shadowRadius: 12,
     elevation: 8,
+    overflow: 'hidden',
   },
-  tabItem: { alignItems: 'center', justifyContent: 'center' },
-  tabIconWrap: { alignItems: 'center', justifyContent: 'center' },
+  tabBarInner: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  tabIndicator: {
+    position: 'absolute',
+    left: 0,
+  },
+  tabItem: { alignItems: 'center', justifyContent: 'center', zIndex: 1 },
 
   modalRoot: {
     flex: 1,

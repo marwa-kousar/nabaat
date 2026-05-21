@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Animated,
   Dimensions,
   Easing,
   Image,
-  LayoutChangeEvent,
   StyleSheet,
   View,
 } from 'react-native';
-
-import SplashBgPattern from '../assets/splash-bg-pattern.svg';
-import SplashStar from '../assets/splash-star.svg';
 
 /** Figma "Splash Screen" frame 393×852 — node 1009:2384 */
 const FIGMA_W = 393;
@@ -19,9 +15,6 @@ const FIGMA_H = 852;
 export function SplashLayout({ onAnimationComplete }: { onAnimationComplete?: () => void }) {
   const { width: screenW, height: screenH } = Dimensions.get('window');
   const scale = Math.min(screenW / FIGMA_W, screenH / FIGMA_H);
-
-  const [bgSize, setBgSize] = useState<{ w: number; h: number } | null>(null);
-  const [starSize, setStarSize] = useState<{ w: number; h: number } | null>(null);
 
   const bgOpacity = useRef(new Animated.Value(0)).current;
   const starOpacity = useRef(new Animated.Value(0)).current;
@@ -88,20 +81,7 @@ export function SplashLayout({ onAnimationComplete }: { onAnimationComplete?: ()
     };
   }, [onAnimationComplete]);
 
-  const onBgLayout = useCallback((e: LayoutChangeEvent) => {
-    const { width, height } = e.nativeEvent.layout;
-    setBgSize((prev) =>
-      prev && prev.w === width && prev.h === height ? prev : { w: width, h: height }
-    );
-  }, []);
-
-  const onStarLayout = useCallback((e: LayoutChangeEvent) => {
-    const { width, height } = e.nativeEvent.layout;
-    setStarSize((prev) =>
-      prev && prev.w === width && prev.h === height ? prev : { w: width, h: height }
-    );
-  }, []);
-
+  /** Figma logo — node 1009:2403 (260×260 at 66, 235 in 393×852 frame) */
   const logoBox = {
     left: 66 * scale,
     top: 235 * scale,
@@ -111,29 +91,29 @@ export function SplashLayout({ onAnimationComplete }: { onAnimationComplete?: ()
 
   return (
     <View style={styles.root} accessibilityLabel="Nabaat splash screen">
-      <View style={styles.bgWrap} onLayout={onBgLayout}>
-        <Animated.View style={[styles.layerFill, { opacity: bgOpacity }]}>
-          {bgSize && bgSize.w > 0 && bgSize.h > 0 ? (
-            <SplashBgPattern width={bgSize.w} height={bgSize.h} />
-          ) : null}
-        </Animated.View>
-      </View>
+      <Animated.View style={[styles.bgPattern, { opacity: bgOpacity }]}>
+        <Image
+          source={require('../assets/splash-pattern.png')}
+          style={styles.layerFill}
+          resizeMode="cover"
+        />
+      </Animated.View>
 
-      <View style={styles.starWrap} onLayout={onStarLayout}>
-        <Animated.View
-          style={[
-            styles.layerFill,
-            {
-              opacity: starOpacity,
-              transform: [{ scale: starScale }],
-            },
-          ]}
-        >
-          {starSize && starSize.w > 0 && starSize.h > 0 ? (
-            <SplashStar width={starSize.w} height={starSize.h} />
-          ) : null}
-        </Animated.View>
-      </View>
+      <Animated.View
+        style={[
+          styles.star,
+          {
+            opacity: starOpacity,
+            transform: [{ scale: starScale }],
+          },
+        ]}
+      >
+        <Image
+          source={require('../assets/splash-star.png')}
+          style={styles.layerFill}
+          resizeMode="contain"
+        />
+      </Animated.View>
 
       <Animated.View
         style={[
@@ -144,11 +124,13 @@ export function SplashLayout({ onAnimationComplete }: { onAnimationComplete?: ()
             transform: [{ scale: logoScale }],
           },
         ]}
+        accessibilityRole="image"
+        accessibilityLabel="Nabaat logo"
       >
         <Image
           source={require('../assets/splash-logo.png')}
           style={styles.logoImage}
-          resizeMode="contain"
+          resizeMode="cover"
         />
       </Animated.View>
     </View>
@@ -162,17 +144,14 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   layerFill: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
   },
-  bgWrap: {
-    position: 'absolute',
-    top: '0.03%',
-    bottom: 0,
-    left: '-17.69%',
-    right: '-10.34%',
+  bgPattern: {
+    ...StyleSheet.absoluteFillObject,
     zIndex: 0,
   },
-  starWrap: {
+  star: {
     position: 'absolute',
     top: '22.65%',
     right: '6.11%',

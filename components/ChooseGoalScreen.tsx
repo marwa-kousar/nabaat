@@ -7,16 +7,18 @@ import { Nunito_700Bold, useFonts as useNunito } from '@expo-google-fonts/nunito
 import { useCallback, useRef, useState, type ComponentType } from 'react';
 import {
   Animated,
-  Image,
-  Pressable,
+
   ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+
+import { UiTapPressable } from './UiTapPressable';
 
 import IconBooks from '../assets/goal-icon-books.svg';
 import IconGame from '../assets/goal-icon-game.svg';
@@ -150,7 +152,7 @@ export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
 
   return (
     <View style={styles.root}>
-      <Image
+      <AppImage
         source={require('../assets/goal-bg.png')}
         style={[styles.goalBg, { top: 1 * sy, height: 850 * sy, opacity: 0.49 }]}
         resizeMode="cover"
@@ -218,7 +220,7 @@ export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
             },
           ]}
         >
-          <Image
+          <AppImage
             source={require('../assets/mateen-sitting-goal.png')}
             style={{ width: 82 * sx, height: 110 * sy }}
             resizeMode="contain"
@@ -231,7 +233,7 @@ export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
           const isOn = selected === opt.id;
           const Icon = opt.Icon;
           return (
-            <Pressable
+            <UiTapPressable
               key={opt.id}
               onPress={() => onSelect(opt.id)}
               style={({ pressed }) => [
@@ -287,7 +289,8 @@ export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
                   position: 'absolute',
                   left: textLeft,
                   right: 52 * sx,
-                  top: 0.2159 * cardH,
+                  top: 0,
+                  bottom: 0,
                   justifyContent: 'center',
                 }}
               >
@@ -311,14 +314,16 @@ export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
                   {opt.subtitle}
                 </Text>
               </View>
-              <Text style={[styles.chevron, { right: 18 * sx, fontSize: 28 * sx }]}>›</Text>
-            </Pressable>
+              <View style={{ position: 'absolute', right: 18 * sx, top: 0, bottom: 0, justifyContent: 'center' }}>
+                <Text style={{ fontSize: 28 * sx, fontWeight: '700', color: '#7c4718' }}>›</Text>
+              </View>
+            </UiTapPressable>
           );
         })}
       </ScrollView>
 
       <View style={[styles.footer, { bottom: footerBottom, paddingHorizontal: 22 * sx, pointerEvents: 'box-none' }]}>
-        <Pressable
+        <UiTapPressable
           onPress={onSkip}
           style={({ pressed }) => [
             styles.skipBtn,
@@ -327,9 +332,9 @@ export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
           ]}
         >
           <Text style={[styles.skipLabel, { fontSize: 16 * sx }]}>Skip</Text>
-        </Pressable>
+        </UiTapPressable>
 
-        <Pressable
+        <UiTapPressable
           onPress={handleContinue}
           disabled={!selected}
           onPressIn={onContinuePressIn}
@@ -369,7 +374,7 @@ export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
               Continue
             </Text>
           </Animated.View>
-        </Pressable>
+        </UiTapPressable>
       </View>
     </View>
   );

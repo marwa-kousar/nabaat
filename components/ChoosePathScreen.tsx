@@ -10,20 +10,21 @@ import { Nunito_700Bold, useFonts as useNunito } from '@expo-google-fonts/nunito
 import { useCallback, useRef, useState } from 'react';
 import {
   Animated,
-  Image,
-  Pressable,
+
   ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Svg, { Path } from 'react-native-svg';
 
+import { UiTapPressable } from './UiTapPressable';
+
 import NabtaSitting from '../assets/nabta-sitting.svg';
-import PathDecoLeaf from '../assets/path-deco-leaf.svg';
 import PathPagination from '../assets/path-pagination.svg';
 import { PathSwatchLetter } from './PathSwatchLetter';
 
@@ -36,8 +37,8 @@ const LETTER_IN_SWATCH = 0.64;
 
 export type LearningPathId = 'nahw' | 'sarf' | 'tajweed' | 'qaida';
 
-/** Figma letter marks: 1354:5800 noon, 1354:5798 taa, 1354:5799 qaf */
-type LetterIconKey = 'noon' | 'taa' | 'qaf';
+/** Figma letter marks: 1354:5800 noon, 1083:2764 saad, 1354:5798 taa, 1354:5799 qaf */
+type LetterIconKey = 'noon' | 'saad' | 'taa' | 'qaf';
 
 export const PATH_OPTIONS: Array<{
   id: LearningPathId;
@@ -68,6 +69,7 @@ export const PATH_OPTIONS: Array<{
     subtitle: 'Word Patterns & Morphology',
     swatch: '#d76700',
     selectedFill: '#ffe3c9',
+    letterIcon: 'saad',
   },
   {
     id: 'tajweed',
@@ -131,7 +133,7 @@ export function ChoosePathScreen({ onContinue }: Props) {
     return <View style={[styles.root, styles.fontsFallback]} />;
   }
 
-  const mascotCenterY = H / 2 - 158.5 * sy;
+  const mascotCenterY = H / 2 - 178 * sy;
   const mascotTop = mascotCenterY - (118 / 2) * sy;
   const mascotLeft = W / 2 - (112 / 2) * sx;
 
@@ -149,7 +151,7 @@ export function ChoosePathScreen({ onContinue }: Props) {
     <View style={styles.root}>
       <View style={[styles.bottomDecor, { height: 237 * sy, pointerEvents: 'none' }]}>
         <View style={styles.bottomDecorClip}>
-          <Image
+          <AppImage
             source={require('../assets/path-selector-bottom.png')}
             style={styles.bottomDecorImage}
             resizeMode="cover"
@@ -194,12 +196,12 @@ export function ChoosePathScreen({ onContinue }: Props) {
           Choose what you would like to grow in
         </Text>
 
-        <View style={{ height: 100 * sy }} />
+        <View style={{ height: 78 * sy }} />
 
         {PATH_OPTIONS.map((opt, index) => {
           const isOn = selected === opt.id;
           return (
-            <Pressable
+            <UiTapPressable
               key={opt.id}
               onPress={() => onSelect(opt.id)}
               style={({ pressed }) => [
@@ -248,7 +250,8 @@ export function ChoosePathScreen({ onContinue }: Props) {
                   position: 'absolute',
                   left: textLeft,
                   right: 52 * sx,
-                  top: 0.2159 * cardH,
+                  top: 0,
+                  bottom: 0,
                   justifyContent: 'center',
                 }}
               >
@@ -283,12 +286,14 @@ export function ChoosePathScreen({ onContinue }: Props) {
                   {opt.subtitle}
                 </Text>
               </View>
-              <Text style={[styles.chevron, { right: 18 * sx, fontSize: 28 * sx }]}>›</Text>
-            </Pressable>
+              <View style={{ position: 'absolute', right: 18 * sx, top: 0, bottom: 0, justifyContent: 'center' }}>
+                <Text style={{ fontSize: 28 * sx, fontWeight: '700', color: '#7c4718' }}>›</Text>
+              </View>
+            </UiTapPressable>
           );
         })}
 
-        <Pressable
+        <UiTapPressable
           onPress={handleContinue}
           disabled={!selected}
           onPressIn={onContinuePressIn}
@@ -328,7 +333,7 @@ export function ChoosePathScreen({ onContinue }: Props) {
               Continue
             </Text>
           </Animated.View>
-        </Pressable>
+        </UiTapPressable>
       </ScrollView>
 
       <View
@@ -344,19 +349,6 @@ export function ChoosePathScreen({ onContinue }: Props) {
         <NabtaSitting width="100%" height="100%" />
       </View>
 
-      {/* Figma node 1083:2764 — small leaf sprig between cards */}
-      <View
-        style={{
-          position: 'absolute',
-          left: 62 * sx,
-          top: 469 * sy,
-          width: 35 * sx,
-          height: 16 * sy,
-          pointerEvents: 'none',
-        }}
-      >
-        <PathDecoLeaf width="100%" height="100%" />
-      </View>
     </View>
   );
 }

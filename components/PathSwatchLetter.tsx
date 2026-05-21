@@ -1,10 +1,15 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import LetterNoon from '../assets/path-letter-noon.svg';
 import LetterQaf from '../assets/path-letter-qaf.svg';
+import LetterSaad from '../assets/path-letter-saad.svg';
 import LetterTaa from '../assets/path-letter-taa.svg';
 
-export type PathLetterIconKey = 'noon' | 'taa' | 'qaf';
+export type PathLetterIconKey = 'noon' | 'saad' | 'taa' | 'qaf';
+
+/** Figma 1083:2764 — 35×16 */
+const SAAD_ASPECT = 35 / 16;
+const SAAD_SIZE_BOOST = 1.14;
 
 type Props = {
   letterIcon?: PathLetterIconKey;
@@ -28,6 +33,21 @@ export function PathSwatchLetter({
 }: Props) {
   if (letterIcon === 'noon') {
     return <LetterNoon width={width} height={height} />;
+  }
+  if (letterIcon === 'saad') {
+    const slotW = width;
+    const slotH = height;
+    let glyphH = slotH * SAAD_SIZE_BOOST;
+    let glyphW = glyphH * SAAD_ASPECT;
+    if (glyphW > slotW * SAAD_SIZE_BOOST) {
+      glyphW = slotW * SAAD_SIZE_BOOST;
+      glyphH = glyphW / SAAD_ASPECT;
+    }
+    return (
+      <View style={[styles.letterSlot, { width: slotW, height: slotH }]}>
+        <LetterSaad width={glyphW} height={glyphH} />
+      </View>
+    );
   }
   if (letterIcon === 'taa') {
     return <LetterTaa width={width} height={height} />;
@@ -55,6 +75,10 @@ export function PathSwatchLetter({
 }
 
 const styles = StyleSheet.create({
+  letterSlot: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   fallbackLetter: {
     fontFamily: 'NotoSansArabic_700Bold',
     textAlign: 'center',

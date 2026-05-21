@@ -75,5 +75,7 @@ const THEMES: Record<LearningPathId, PathTheme> = {
 };
 
 export function pathThemeOf(path: LearningPathId): PathTheme {
-  return THEMES[path];
+  const hit = THEMES[path];
+  if (hit) return hit;
+  return THEMES.nahw;
 }

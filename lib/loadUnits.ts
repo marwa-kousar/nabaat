@@ -1,4 +1,5 @@
 import type { LearningPathId } from '../components/ChoosePathScreen';
+import type { LessonStepJson } from './lessonSteps';
 
 export type LessonJson = {
   num: number;
@@ -11,6 +12,8 @@ export type LessonJson = {
   conceptsCount?: number;
   /** Plain-text lesson intro body for the intro sheet (optional → code fallback). */
   introDescription?: string;
+  /** In-lesson screens (Figma learn flow); when empty, app may use a demo flow. */
+  steps?: LessonStepJson[];
 };
 
 export type UnitJson = {
@@ -81,6 +84,15 @@ export function getLessonAtIndices(
   const lesson = unit.lessons?.[lessonIndex] ?? unit.lessons?.[0];
   if (!lesson) return null;
   return { unit, lesson };
+}
+
+export function getLessonSteps(
+  path: LearningPathId,
+  unitIndex: number,
+  lessonIndex: number,
+): LessonStepJson[] {
+  const hit = getLessonAtIndices(path, unitIndex, lessonIndex);
+  return hit?.lesson.steps ?? [];
 }
 
 export function getUnitsMeta(path: LearningPathId): { completed: number; total: number } {
