@@ -12,10 +12,9 @@ import {
   Easing,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
 } from 'react-native';
-
+import { useAppDimensions } from '../lib/useAppDimensions';
 import Svg, { Path } from 'react-native-svg';
 
 import { AppImage } from './AppImage';
@@ -34,7 +33,7 @@ type StartScreenProps = {
 };
 
 export function StartScreen({ onBismillah }: StartScreenProps) {
-  const { width: W, height: H } = useWindowDimensions();
+  const { width: W, height: H } = useAppDimensions();
   const sx = W / FIGMA_W;
   const sy = H / FIGMA_H;
 

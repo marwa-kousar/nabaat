@@ -11,9 +11,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
 } from 'react-native';
+import { useAppDimensions } from '../lib/useAppDimensions';
 import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
@@ -97,7 +97,7 @@ type Props = {
 };
 
 export function ChooseGoalScreen({ onSkip, onContinue }: Props) {
-  const { width: W, height: H } = useWindowDimensions();
+  const { width: W, height: H } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const sx = W / FIGMA_W;
   const sy = H / FIGMA_H;

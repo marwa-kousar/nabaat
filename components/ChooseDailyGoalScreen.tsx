@@ -16,9 +16,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
 } from 'react-native';
+import { useAppDimensions } from '../lib/useAppDimensions';
 import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -81,7 +81,7 @@ type Props = {
 };
 
 export function ChooseDailyGoalScreen({ onContinue, onSkipForNow }: Props) {
-  const { width: W, height: H } = useWindowDimensions();
+  const { width: W, height: H } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const sx = W / FIGMA_W;
   const sy = H / FIGMA_H;

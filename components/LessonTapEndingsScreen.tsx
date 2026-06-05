@@ -10,9 +10,10 @@ import {
 } from '@expo-google-fonts/noto-sans-arabic';
 import { Nunito_700Bold, Nunito_800ExtraBold, useFonts as useNunito } from '@expo-google-fonts/nunito';
 import { useCallback, useMemo, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppDimensions } from '../lib/useAppDimensions';
 import type { LearningPathId } from './ChoosePathScreen';
 import {
   LessonHighlightedSentenceCard,
@@ -63,7 +64,7 @@ export function LessonTapEndingsScreen({
   onExit,
   onContinue,
 }: LessonTapEndingsScreenProps) {
-  const { width: W } = useWindowDimensions();
+  const { width: W } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const s = W / FIGMA_W;
 

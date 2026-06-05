@@ -17,10 +17,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
   type ViewStyle,
 } from 'react-native';
+import { useAppDimensions } from '../lib/useAppDimensions';
 import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -70,7 +70,7 @@ export function LessonIntroScreen({
   onBack,
   onBegin,
 }: LessonIntroScreenProps) {
-  const { width: W, height: H } = useWindowDimensions();
+  const { width: W, height: H } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const s = W / FIGMA_W;
 

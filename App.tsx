@@ -1,7 +1,7 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ChooseDailyGoalScreen } from './components/ChooseDailyGoalScreen';
@@ -190,7 +190,7 @@ export default function App() {
                     ? '#fff8e8'
                     : '#fff8e8';
 
-  return (
+  const inner = (
     <SafeAreaProvider>
       <View style={[styles.root, { backgroundColor: rootBg }]} onLayout={onRootLayout}>
         {screen === 'splash' && <SplashLayout onAnimationComplete={handleSplashDone} />}
@@ -270,10 +270,28 @@ export default function App() {
       </View>
     </SafeAreaProvider>
   );
+
+  if (Platform.OS !== 'web') return inner;
+
+  return (
+    <View style={styles.webOuter}>
+      <View style={styles.webFrame}>{inner}</View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  webOuter: {
+    flex: 1,
+    backgroundColor: '#1a1a1a',
+    alignItems: 'center',
+  },
+  webFrame: {
+    width: 393,
+    flex: 1,
+    overflow: 'hidden',
   },
 });
