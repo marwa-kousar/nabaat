@@ -24,9 +24,9 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from 'react-native';
+import { useAppDimensions } from '../lib/useAppDimensions';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { LearningPathId } from './ChoosePathScreen';
@@ -199,7 +199,7 @@ export function AyahLabScreen({
   tabBarBottomInset = 0,
   todaysConnection,
 }: AyahLabScreenProps) {
-  const { width: W } = useWindowDimensions();
+  const { width: W } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const s = W / FIGMA_W;
   const isTab = variant === 'tab';

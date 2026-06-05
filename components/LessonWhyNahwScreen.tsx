@@ -18,8 +18,8 @@ import {
   StyleSheet,
   Text,
   View,
-  useWindowDimensions,
 } from 'react-native';
+import { useAppDimensions } from '../lib/useAppDimensions';
 import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
@@ -90,7 +90,7 @@ export function LessonWhyNahwScreen({
   onExit,
   onContinue,
 }: LessonWhyNahwScreenProps) {
-  const { width: W } = useWindowDimensions();
+  const { width: W } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const s = W / FIGMA_W;
 

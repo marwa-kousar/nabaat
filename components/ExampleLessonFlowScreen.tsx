@@ -17,9 +17,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
 } from 'react-native';
+import { useAppDimensions } from '../lib/useAppDimensions';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { LearningPathId } from './ChoosePathScreen';
@@ -57,7 +57,7 @@ export function ExampleLessonFlowScreen({
   onExit,
   onComplete,
 }: ExampleLessonFlowScreenProps) {
-  const { width: W } = useWindowDimensions();
+  const { width: W } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const s = W / FIGMA_W;
 

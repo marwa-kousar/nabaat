@@ -11,8 +11,8 @@ import {
   StyleSheet,
   Text,
   View,
-  useWindowDimensions,
 } from 'react-native';
+import { useAppDimensions } from '../lib/useAppDimensions';
 import { AppImage } from './AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -56,7 +56,7 @@ export function LessonCompleteScreen({
   onReviewLesson,
   onExploreAyahLab,
 }: LessonCompleteScreenProps) {
-  const { width: W, height: H } = useWindowDimensions();
+  const { width: W, height: H } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const s = W / FIGMA_W;
 
