@@ -1,117 +1,421 @@
 {
-  "meta": {
-    "completedUnitCount": 1,
-    "totalUnitCount": 4
-  },
-  "units": [
-    {
-      "num": "0",
-      "titleEn": "Foundations",
-      "titleAr": "الْأَسَاسِيَّاتُ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#8b5cf6",
-      "iconRadius": 15,
-      "numColor": "#ffffff",
-      "arabicColor": "#3d2a6b",
-      "locked": false,
-      "active": true,
-      "lessons": [
+    "meta": {
+        "completedUnitCount": 1,
+        "totalUnitCount": 4
+    },
+    "units": [
         {
-          "num": 1,
-          "title": "What is Tajweed?",
-          "titleAr": "مَا هُوَ التَّجْوِيدُ؟",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 2,
-          "introDescription": "Learn the rules that beautify Qur’anic recitation, starting with الْمَخَارِج."
+            "num": "0",
+            "titleEn": "Foundations",
+            "titleAr": "الْأَسَاسِيَّاتُ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#8b5cf6",
+            "iconRadius": 15,
+            "numColor": "#ffffff",
+            "arabicColor": "#3d2a6b",
+            "locked": false,
+            "active": true,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "What is Tajweed?",
+                    "titleAr": "مَا هُوَ التَّجْوِيدُ؟",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 2,
+                    "introDescription": "Learn the rules that beautify Qur’anic recitation, starting with الْمَخَارِج.",
+                    "steps": [
+                        {
+                            "kind": "sentenceCompare",
+                            "id": "what-is-tajweed-compare",
+                            "progress": 0.05,
+                            "question": "Is the noon pronounced the same in both?",
+                            "questionEmoji": "🎙️",
+                            "instruction": "Pay attention to the letter noon (نْ) and what follows it.",
+                            "sentences": [
+                                {
+                                    "id": "sentence-a",
+                                    "arabic": "مَنْ آمَنَ",
+                                    "transliteration": "man āmana",
+                                    "translation": "Whoever believes.",
+                                    "audioKey": "sentence-a"
+                                },
+                                {
+                                    "id": "sentence-b",
+                                    "arabic": "مَنْ يَعْمَلْ",
+                                    "transliteration": "man ya'mal",
+                                    "translation": "Whoever does.",
+                                    "audioKey": "sentence-b"
+                                }
+                            ],
+                            "choicePrompt": "Is the noon in both phrases the same?",
+                            "options": [
+                                {
+                                    "id": "yes",
+                                    "label": "Yes, the same",
+                                    "correct": false
+                                },
+                                {
+                                    "id": "no",
+                                    "label": "No, different",
+                                    "correct": true
+                                }
+                            ],
+                            "feedback": {
+                                "titleAr": "أَحْسَنْتَ!",
+                                "titleEn": "Sharp ear!",
+                                "message": "The noon sounds different based on the letter that follows — tajweed tells us exactly how.",
+                                "rewardSeeds": 10
+                            },
+                            "wrongFeedback": {
+                                "titleEn": "Listen again!",
+                                "titleSub": "Focus on the nun and what comes after.",
+                                "message": "When noon meets certain letters, the sound changes — these are tajweed rules."
+                            }
+                        },
+                        {
+                            "kind": "endingsReveal",
+                            "id": "what-is-tajweed-reveal",
+                            "progress": 0.18,
+                            "progressRevealed": 0.23,
+                            "headline": {
+                                "title": "Great observation!",
+                                "subtitle": "The noon changes based on what follows."
+                            },
+                            "revealCard": {
+                                "tapLabel": "What is Tajweed?",
+                                "tapHint": "Tap to Reveal",
+                                "body": "Tajweed (التَّجْوِيدُ) means 'to make excellent' — it is the science of pronouncing the Qur'an correctly, preserving every sound exactly as it was revealed."
+                            },
+                            "sentences": [
+                                {
+                                    "id": "sentence-a",
+                                    "arabic": "مَنْ آمَنَ",
+                                    "arabicSegments": [
+                                        {
+                                            "text": "مَ",
+                                            "color": "default"
+                                        },
+                                        {
+                                            "text": "نْ",
+                                            "color": "highlightAlt"
+                                        },
+                                        {
+                                            "text": " آمَنَ",
+                                            "color": "default"
+                                        }
+                                    ],
+                                    "transliteration": "man āmana",
+                                    "translation": "Whoever believes — noon is clear.",
+                                    "audioKey": "sentence-a"
+                                },
+                                {
+                                    "id": "sentence-b",
+                                    "arabic": "مَنْ يَعْمَلْ",
+                                    "arabicSegments": [
+                                        {
+                                            "text": "مَ",
+                                            "color": "default"
+                                        },
+                                        {
+                                            "text": "نْ",
+                                            "color": "highlightAlt"
+                                        },
+                                        {
+                                            "text": " يَعْمَلْ",
+                                            "color": "default"
+                                        }
+                                    ],
+                                    "transliteration": "man ya'mal",
+                                    "translation": "Whoever does — noon merges.",
+                                    "audioKey": "sentence-b"
+                                }
+                            ],
+                            "footerInsight": {
+                                "message": "Tajweed preserves the exact pronunciation that was passed down from the Prophet ﷺ — one letter at a time.",
+                                "rewardSeeds": 5
+                            }
+                        },
+                        {
+                            "kind": "tapEndings",
+                            "id": "what-is-tajweed-noon",
+                            "progress": 0.38,
+                            "headline": {
+                                "title": "The noon (نْ) has three rules",
+                                "subtitle": "tap each to explore"
+                            },
+                            "tapPrompt": "Tap each rule:",
+                            "example": {
+                                "id": "noon-example",
+                                "arabic": "مَنْ آمَنَ",
+                                "arabicSegments": [
+                                    {
+                                        "text": "مَ",
+                                        "color": "default"
+                                    },
+                                    {
+                                        "text": "نْ",
+                                        "color": "endingBadge"
+                                    },
+                                    {
+                                        "text": " آمَنَ",
+                                        "color": "default"
+                                    }
+                                ],
+                                "transliteration": "man āmana",
+                                "translation": "Whoever believes.",
+                                "audioKey": "noon-example"
+                            },
+                            "endings": [
+                                {
+                                    "id": "izhaar",
+                                    "symbol": "نَ",
+                                    "symbolColor": "default",
+                                    "arabicLabel": "إِظْهَارٌ",
+                                    "transliteration": "iẓhār (clear)",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "مَ",
+                                                "color": "default"
+                                            },
+                                            {
+                                                "text": "نْ ",
+                                                "color": "highlight"
+                                            },
+                                            {
+                                                "text": "آمَنَ",
+                                                "color": "default"
+                                            }
+                                        ],
+                                        "transliteration": "man āmana",
+                                        "translation": "Whoever believes — noon is clear."
+                                    }
+                                },
+                                {
+                                    "id": "idgham",
+                                    "symbol": "نُ",
+                                    "symbolColor": "muted",
+                                    "arabicLabel": "إِدْغَامٌ",
+                                    "transliteration": "idghām (merge)",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "مَ",
+                                                "color": "default"
+                                            },
+                                            {
+                                                "text": "نْ ",
+                                                "color": "highlight"
+                                            },
+                                            {
+                                                "text": "يَعْمَلْ",
+                                                "color": "default"
+                                            }
+                                        ],
+                                        "transliteration": "man ya'mal",
+                                        "translation": "Whoever does — noon merges into ya."
+                                    }
+                                },
+                                {
+                                    "id": "ikhfa",
+                                    "symbol": "نِ",
+                                    "symbolColor": "muted",
+                                    "arabicLabel": "إِخْفَاءٌ",
+                                    "transliteration": "ikhfā' (hide)",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "مَ",
+                                                "color": "default"
+                                            },
+                                            {
+                                                "text": "نْ ",
+                                                "color": "highlight"
+                                            },
+                                            {
+                                                "text": "تَابَ",
+                                                "color": "default"
+                                            }
+                                        ],
+                                        "transliteration": "man tāba",
+                                        "translation": "Whoever repents — noon is nasalized."
+                                    }
+                                }
+                            ],
+                            "footerInsight": {
+                                "titleAr": "بَارَكَ اللهُ فِيكَ!",
+                                "message": "Each rule has a reason — and mastering them brings your recitation to life!",
+                                "rewardSeeds": 15
+                            }
+                        },
+                        {
+                            "kind": "whyNahw",
+                            "id": "what-is-tajweed-why",
+                            "progress": 0.52,
+                            "question": "Why do you think learning Tajweed is important?",
+                            "options": [
+                                {
+                                    "id": "beauty",
+                                    "label": "To recite beautifully",
+                                    "correct": false,
+                                    "icon": "lightbulb"
+                                },
+                                {
+                                    "id": "protect",
+                                    "label": "To preserve Allah's words",
+                                    "correct": false,
+                                    "icon": "shield"
+                                },
+                                {
+                                    "id": "meaning",
+                                    "label": "To avoid changing the meaning",
+                                    "correct": false,
+                                    "icon": "quran"
+                                },
+                                {
+                                    "id": "all",
+                                    "label": "All of the above",
+                                    "correct": true,
+                                    "icon": "all"
+                                }
+                            ],
+                            "ayahVerseKey": "73:4",
+                            "feedback": {
+                                "titleAr": "جَمِيلٌ!",
+                                "titleEn": "Beautiful!",
+                                "message": "Tajweed is an act of love for the Qur'an — each rule honours the words of Allah",
+                                "rewardSeeds": 10
+                            }
+                        },
+                        {
+                            "kind": "reflect",
+                            "id": "what-is-tajweed-reflect",
+                            "progress": 0.65,
+                            "title": "Think for a moment...",
+                            "prompt": "The Qur'an was revealed with precise sounds.\n\nWhat might be lost if we recited it without these rules?",
+                            "inputPlaceholder": "Write your thoughts...",
+                            "minChars": 3,
+                            "feedback": {
+                                "titleAr": "جَمِيلٌ!",
+                                "titleEn": "Beautiful!",
+                                "message": "Reflecting helps knowledge take root in the heart!",
+                                "rewardSeeds": 10
+                            }
+                        },
+                        {
+                            "kind": "lessonComplete",
+                            "id": "what-is-tajweed-complete",
+                            "lessonNumber": 1,
+                            "title": "Masha'Allah!",
+                            "subtitle": "You've completed Lesson 1!",
+                            "learnedTitle": "Today you learned...",
+                            "learned": [
+                                "Tajweed perfects recitation",
+                                "Noon has 3 core rules",
+                                "Pronunciation changes meaning"
+                            ],
+                            "canNowTitle": "You can now...",
+                            "canNow": [
+                                "Spot noon sakinah in text",
+                                "Name the 3 noon rules"
+                            ],
+                            "rewards": {
+                                "totalSeeds": 50,
+                                "reflectionsSaved": 1,
+                                "streakMaintained": true,
+                                "streakMessageAr": "مَاشَاءَ اللهُ!"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "num": 2,
+                    "title": "Makharij overview",
+                    "titleAr": "نَظْرَةٌ عَلَى مَخَارِجِ الْحُرُوفِ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Makharij overview (نَظْرَةٌ عَلَى مَخَارِجِ الْحُرُوفِ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         },
         {
-          "num": 2,
-          "title": "Makharij overview",
-          "titleAr": "نَظْرَةٌ عَلَى مَخَارِجِ الْحُرُوفِ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Makharij overview (نَظْرَةٌ عَلَى مَخَارِجِ الْحُرُوفِ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    },
-    {
-      "num": "1",
-      "titleEn": "Noon & Meem",
-      "titleAr": "النُّونُ وَالْمِيمُ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
+            "num": "1",
+            "titleEn": "Noon & Meem",
+            "titleAr": "النُّونُ وَالْمِيمُ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Ikhfa",
+                    "titleAr": "الْإِخْفَاءُ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Ikhfa (الْإِخْفَاءُ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
+        },
         {
-          "num": 1,
-          "title": "Ikhfa",
-          "titleAr": "الْإِخْفَاءُ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Ikhfa (الْإِخْفَاءُ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    },
-    {
-      "num": "2",
-      "titleEn": "Madd",
-      "titleAr": "الْمَدُّ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
+            "num": "2",
+            "titleEn": "Madd",
+            "titleAr": "الْمَدُّ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Natural madd",
+                    "titleAr": "الْمَدُّ الطَّبِيعِيُّ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Natural madd (الْمَدُّ الطَّبِيعِيُّ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
+        },
         {
-          "num": 1,
-          "title": "Natural madd",
-          "titleAr": "الْمَدُّ الطَّبِيعِيُّ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Natural madd (الْمَدُّ الطَّبِيعِيُّ). Guided steps and quick checks help you apply what you learn."
+            "num": "3",
+            "titleEn": "Stopping (Waqf)",
+            "titleAr": "الْوَقْفُ",
+            "tag": "Intermediate",
+            "tagColor": "#ff8c1a",
+            "leafIntermediate": true,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Permitted stops",
+                    "titleAr": "الْوُقُوفُ الْمُبَاحُ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Permitted stops (الْوُقُوفُ الْمُبَاحُ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         }
-      ]
-    },
-    {
-      "num": "3",
-      "titleEn": "Stopping (Waqf)",
-      "titleAr": "الْوَقْفُ",
-      "tag": "Intermediate",
-      "tagColor": "#ff8c1a",
-      "leafIntermediate": true,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
-        {
-          "num": 1,
-          "title": "Permitted stops",
-          "titleAr": "الْوُقُوفُ الْمُبَاحُ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Permitted stops (الْوُقُوفُ الْمُبَاحُ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    }
-  ]
+    ]
 }

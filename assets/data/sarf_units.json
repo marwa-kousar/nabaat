@@ -1,135 +1,407 @@
 {
-  "meta": {
-    "completedUnitCount": 1,
-    "totalUnitCount": 4
-  },
-  "units": [
-    {
-      "num": "0",
-      "titleEn": "Roots & patterns",
-      "titleAr": "الْجُذُورُ وَالْأَوْزَانُ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#c97a2e",
-      "iconRadius": 15,
-      "numColor": "#ffffff",
-      "arabicColor": "#5c3a12",
-      "locked": false,
-      "active": true,
-      "lessons": [
+    "meta": {
+        "completedUnitCount": 1,
+        "totalUnitCount": 4
+    },
+    "units": [
         {
-          "num": 1,
-          "title": "What is Sarf?",
-          "titleAr": "مَا هُوَ الصَّرْفُ؟",
-          "done": false,
-          "estMinutes": 6,
-          "conceptsCount": 3,
-          "introDescription": "Discover how Arabic roots and patterns shape word meanings. (الْجِذْرُ)"
+            "num": "0",
+            "titleEn": "Roots & patterns",
+            "titleAr": "الْجُذُورُ وَالْأَوْزَانُ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#c97a2e",
+            "iconRadius": 15,
+            "numColor": "#ffffff",
+            "arabicColor": "#5c3a12",
+            "locked": false,
+            "active": true,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "What is Sarf?",
+                    "titleAr": "مَا هُوَ الصَّرْفُ؟",
+                    "done": false,
+                    "estMinutes": 6,
+                    "conceptsCount": 3,
+                    "introDescription": "Discover how Arabic roots and patterns shape word meanings. (الْجِذْرُ)",
+                    "steps": [
+                        {
+                            "kind": "sentenceCompare",
+                            "id": "what-is-sarf-compare",
+                            "progress": 0.05,
+                            "question": "Are these words from the same family?",
+                            "questionEmoji": "🌱",
+                            "instruction": "Look at the letters inside each word.",
+                            "sentences": [
+                                {
+                                    "id": "sentence-a",
+                                    "arabic": "كَتَبَ",
+                                    "transliteration": "kataba",
+                                    "translation": "He wrote.",
+                                    "audioKey": "sentence-a"
+                                },
+                                {
+                                    "id": "sentence-b",
+                                    "arabic": "كِتَابٌ",
+                                    "transliteration": "kitābun",
+                                    "translation": "A book.",
+                                    "audioKey": "sentence-b"
+                                }
+                            ],
+                            "choicePrompt": "Do these words share the same root?",
+                            "options": [
+                                {
+                                    "id": "yes",
+                                    "label": "Yes, same root",
+                                    "correct": true
+                                },
+                                {
+                                    "id": "no",
+                                    "label": "No, different roots",
+                                    "correct": false
+                                }
+                            ],
+                            "feedback": {
+                                "titleAr": "أَحْسَنْتَ!",
+                                "titleEn": "Exactly right!",
+                                "message": "Both words grow from the same three-letter root: ك-ت-ب.",
+                                "rewardSeeds": 10
+                            },
+                            "wrongFeedback": {
+                                "titleEn": "Look again!",
+                                "titleSub": "Notice the shared letters inside.",
+                                "message": "Both carry ك، ت، ب — they grow from the very same root."
+                            }
+                        },
+                        {
+                            "kind": "endingsReveal",
+                            "id": "what-is-sarf-reveal",
+                            "progress": 0.18,
+                            "progressRevealed": 0.23,
+                            "headline": {
+                                "title": "One root — many words!",
+                                "subtitle": "The shared letters are the key."
+                            },
+                            "revealCard": {
+                                "tapLabel": "What is Sarf?",
+                                "tapHint": "Tap to Reveal",
+                                "body": "Sarf (الصَّرْفُ) is the science of Arabic morphology — how one three-letter root branches into verbs, nouns, and more, each carrying a related meaning."
+                            },
+                            "sentences": [
+                                {
+                                    "id": "sentence-a",
+                                    "arabic": "كَتَبَ",
+                                    "arabicSegments": [
+                                        {
+                                            "text": "كَ",
+                                            "color": "highlightAlt"
+                                        },
+                                        {
+                                            "text": "تَ",
+                                            "color": "highlightAlt"
+                                        },
+                                        {
+                                            "text": "بَ",
+                                            "color": "highlightAlt"
+                                        }
+                                    ],
+                                    "transliteration": "kataba",
+                                    "translation": "He wrote.",
+                                    "audioKey": "sentence-a"
+                                },
+                                {
+                                    "id": "sentence-b",
+                                    "arabic": "كِتَابٌ",
+                                    "arabicSegments": [
+                                        {
+                                            "text": "كِ",
+                                            "color": "highlightAlt"
+                                        },
+                                        {
+                                            "text": "تَا",
+                                            "color": "default"
+                                        },
+                                        {
+                                            "text": "بٌ",
+                                            "color": "highlightAlt"
+                                        }
+                                    ],
+                                    "transliteration": "kitābun",
+                                    "translation": "A book.",
+                                    "audioKey": "sentence-b"
+                                }
+                            ],
+                            "footerInsight": {
+                                "message": "Knowing one root can unlock dozens of related words — verbs, nouns, places, and more.",
+                                "rewardSeeds": 5
+                            }
+                        },
+                        {
+                            "kind": "tapEndings",
+                            "id": "what-is-sarf-patterns",
+                            "progress": 0.38,
+                            "headline": {
+                                "title": "One root — three branches",
+                                "subtitle": "from the root ك-ت-ب"
+                            },
+                            "tapPrompt": "Tap each word form:",
+                            "example": {
+                                "id": "kataba-example",
+                                "arabic": "كَتَبَ",
+                                "arabicSegments": [
+                                    {
+                                        "text": "كَتَبَ",
+                                        "color": "endingBadge"
+                                    }
+                                ],
+                                "transliteration": "kataba",
+                                "translation": "He wrote.",
+                                "audioKey": "kataba-example"
+                            },
+                            "endings": [
+                                {
+                                    "id": "verb-form",
+                                    "symbol": "فَ",
+                                    "symbolColor": "default",
+                                    "arabicLabel": "الْفِعْلُ",
+                                    "transliteration": "verb (fi'l)",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "كَتَبَ",
+                                                "color": "highlight"
+                                            }
+                                        ],
+                                        "transliteration": "kataba",
+                                        "translation": "He wrote."
+                                    }
+                                },
+                                {
+                                    "id": "noun-form",
+                                    "symbol": "كِ",
+                                    "symbolColor": "muted",
+                                    "arabicLabel": "الاِسْمُ",
+                                    "transliteration": "noun (ism)",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "كِتَابٌ",
+                                                "color": "highlight"
+                                            }
+                                        ],
+                                        "transliteration": "kitābun",
+                                        "translation": "A book."
+                                    }
+                                },
+                                {
+                                    "id": "place-form",
+                                    "symbol": "مَ",
+                                    "symbolColor": "muted",
+                                    "arabicLabel": "اسمُ الْمَكَانِ",
+                                    "transliteration": "place (makān)",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "مَكْتَبٌ",
+                                                "color": "highlight"
+                                            }
+                                        ],
+                                        "transliteration": "maktabun",
+                                        "translation": "A desk / office."
+                                    }
+                                }
+                            ],
+                            "footerInsight": {
+                                "titleAr": "بَارَكَ اللهُ فِيكَ!",
+                                "message": "One root grows into verbs, nouns, and places — Sarf teaches you to see the pattern!",
+                                "rewardSeeds": 15
+                            }
+                        },
+                        {
+                            "kind": "whyNahw",
+                            "id": "what-is-sarf-why",
+                            "progress": 0.52,
+                            "question": "Why do you think learning Sarf is important?",
+                            "options": [
+                                {
+                                    "id": "vocab",
+                                    "label": "To grow vocabulary fast",
+                                    "correct": false,
+                                    "icon": "lightbulb"
+                                },
+                                {
+                                    "id": "quran",
+                                    "label": "To understand Qur'anic words",
+                                    "correct": false,
+                                    "icon": "quran"
+                                },
+                                {
+                                    "id": "roots",
+                                    "label": "To recognise word families",
+                                    "correct": false,
+                                    "icon": "shield"
+                                },
+                                {
+                                    "id": "all",
+                                    "label": "All of the above",
+                                    "correct": true,
+                                    "icon": "all"
+                                }
+                            ],
+                            "ayahVerseKey": "96:1",
+                            "feedback": {
+                                "titleAr": "جَمِيلٌ!",
+                                "titleEn": "Beautiful!",
+                                "message": "Sarf connects you to the deep structure of Arabic — and brings you closer to the words of Allah",
+                                "rewardSeeds": 10
+                            }
+                        },
+                        {
+                            "kind": "reflect",
+                            "id": "what-is-sarf-reflect",
+                            "progress": 0.65,
+                            "title": "Think for a moment...",
+                            "prompt": "Arabic grows from roots, like trees from seeds.\n\nIf you knew one root, how many words do you think you could unlock?",
+                            "inputPlaceholder": "Write your thoughts...",
+                            "minChars": 3,
+                            "feedback": {
+                                "titleAr": "جَمِيلٌ!",
+                                "titleEn": "Beautiful!",
+                                "message": "Reflecting helps knowledge take root in the heart!",
+                                "rewardSeeds": 10
+                            }
+                        },
+                        {
+                            "kind": "lessonComplete",
+                            "id": "what-is-sarf-complete",
+                            "lessonNumber": 1,
+                            "title": "Masha'Allah!",
+                            "subtitle": "You've completed Lesson 1!",
+                            "learnedTitle": "Today you learned...",
+                            "learned": [
+                                "Sarf shapes word meaning",
+                                "One root = many words",
+                                "Patterns unlock families"
+                            ],
+                            "canNowTitle": "You can now...",
+                            "canNow": [
+                                "Spot shared root letters",
+                                "See how words are related"
+                            ],
+                            "rewards": {
+                                "totalSeeds": 50,
+                                "reflectionsSaved": 1,
+                                "streakMaintained": true,
+                                "streakMessageAr": "مَاشَاءَ اللهُ!"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "num": 2,
+                    "title": "The three-letter root",
+                    "titleAr": "الْجِذْرُ الثُّلَاثِيُّ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: The three-letter root (الْجِذْرُ الثُّلَاثِيُّ). Guided steps and quick checks help you apply what you learn."
+                },
+                {
+                    "num": 3,
+                    "title": "Scale overview",
+                    "titleAr": "نَظْرَةٌ عَلَى الْأَوْزَانِ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Scale overview (نَظْرَةٌ عَلَى الْأَوْزَانِ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         },
         {
-          "num": 2,
-          "title": "The three-letter root",
-          "titleAr": "الْجِذْرُ الثُّلَاثِيُّ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: The three-letter root (الْجِذْرُ الثُّلَاثِيُّ). Guided steps and quick checks help you apply what you learn."
+            "num": "1",
+            "titleEn": "Past tense (Māḍī)",
+            "titleAr": "الْمَاضِي",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Sound verbs",
+                    "titleAr": "الْأَفْعَالُ السَّالِمَةُ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Sound verbs (الْأَفْعَالُ السَّالِمَةُ). Guided steps and quick checks help you apply what you learn."
+                },
+                {
+                    "num": 2,
+                    "title": "Weak letters",
+                    "titleAr": "الْأَحْرُفُ الْعِلَّةُ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Weak letters (الْأَحْرُفُ الْعِلَّةُ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         },
         {
-          "num": 3,
-          "title": "Scale overview",
-          "titleAr": "نَظْرَةٌ عَلَى الْأَوْزَانِ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Scale overview (نَظْرَةٌ عَلَى الْأَوْزَانِ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    },
-    {
-      "num": "1",
-      "titleEn": "Past tense (Māḍī)",
-      "titleAr": "الْمَاضِي",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
-        {
-          "num": 1,
-          "title": "Sound verbs",
-          "titleAr": "الْأَفْعَالُ السَّالِمَةُ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Sound verbs (الْأَفْعَالُ السَّالِمَةُ). Guided steps and quick checks help you apply what you learn."
+            "num": "2",
+            "titleEn": "Present (Muḍāri')",
+            "titleAr": "الْمُضَارِعُ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Prefixes",
+                    "titleAr": "أَدَوَاتُ الْمُضَارِعِ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Prefixes (أَدَوَاتُ الْمُضَارِعِ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         },
         {
-          "num": 2,
-          "title": "Weak letters",
-          "titleAr": "الْأَحْرُفُ الْعِلَّةُ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Weak letters (الْأَحْرُفُ الْعِلَّةُ). Guided steps and quick checks help you apply what you learn."
+            "num": "3",
+            "titleEn": "Derived forms",
+            "titleAr": "الْأَبْنِيَةُ",
+            "tag": "Intermediate",
+            "tagColor": "#ff8c1a",
+            "leafIntermediate": true,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Form II",
+                    "titleAr": "الْبَابُ الثَّانِي",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Form II (الْبَابُ الثَّانِي). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         }
-      ]
-    },
-    {
-      "num": "2",
-      "titleEn": "Present (Muḍāri')",
-      "titleAr": "الْمُضَارِعُ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
-        {
-          "num": 1,
-          "title": "Prefixes",
-          "titleAr": "أَدَوَاتُ الْمُضَارِعِ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Prefixes (أَدَوَاتُ الْمُضَارِعِ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    },
-    {
-      "num": "3",
-      "titleEn": "Derived forms",
-      "titleAr": "الْأَبْنِيَةُ",
-      "tag": "Intermediate",
-      "tagColor": "#ff8c1a",
-      "leafIntermediate": true,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
-        {
-          "num": 1,
-          "title": "Form II",
-          "titleAr": "الْبَابُ الثَّانِي",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Form II (الْبَابُ الثَّانِي). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    }
-  ]
+    ]
 }

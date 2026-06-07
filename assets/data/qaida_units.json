@@ -1,117 +1,397 @@
 {
-  "meta": {
-    "completedUnitCount": 1,
-    "totalUnitCount": 4
-  },
-  "units": [
-    {
-      "num": "0",
-      "titleEn": "Letters & shapes",
-      "titleAr": "الْحُرُوفُ وَالْأَشْكَالُ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#c9b318",
-      "iconRadius": 15,
-      "numColor": "#ffffff",
-      "arabicColor": "#5c4f00",
-      "locked": false,
-      "active": true,
-      "lessons": [
+    "meta": {
+        "completedUnitCount": 1,
+        "totalUnitCount": 4
+    },
+    "units": [
         {
-          "num": 1,
-          "title": "What is the Qa’ida?",
-          "titleAr": "مَا هِيَ الْقَاعِدَةُ؟",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 2,
-          "introDescription": "Meet the Arabic letters and how they connect in simple words. (الْحُرُوفُ)"
+            "num": "0",
+            "titleEn": "Letters & shapes",
+            "titleAr": "الْحُرُوفُ وَالْأَشْكَالُ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#c9b318",
+            "iconRadius": 15,
+            "numColor": "#ffffff",
+            "arabicColor": "#5c4f00",
+            "locked": false,
+            "active": true,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "What is the Qa’ida?",
+                    "titleAr": "مَا هِيَ الْقَاعِدَةُ؟",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 2,
+                    "introDescription": "Meet the Arabic letters and how they connect in simple words. (الْحُرُوفُ)",
+                    "steps": [
+                        {
+                            "kind": "sentenceCompare",
+                            "id": "what-is-qaida-compare",
+                            "progress": 0.05,
+                            "question": "Is this the same letter in both words?",
+                            "questionEmoji": "✍️",
+                            "instruction": "Look for the letter ب (ba) in each word.",
+                            "sentences": [
+                                {
+                                    "id": "sentence-a",
+                                    "arabic": "بَيْتٌ",
+                                    "transliteration": "baytun",
+                                    "translation": "A house.",
+                                    "audioKey": "sentence-a"
+                                },
+                                {
+                                    "id": "sentence-b",
+                                    "arabic": "كَتَبَ",
+                                    "transliteration": "kataba",
+                                    "translation": "He wrote.",
+                                    "audioKey": "sentence-b"
+                                }
+                            ],
+                            "choicePrompt": "Does the letter ب appear in both words?",
+                            "options": [
+                                {
+                                    "id": "yes",
+                                    "label": "Yes, it does!",
+                                    "correct": true
+                                },
+                                {
+                                    "id": "no",
+                                    "label": "No, they differ",
+                                    "correct": false
+                                }
+                            ],
+                            "feedback": {
+                                "titleAr": "أَحْسَنْتَ!",
+                                "titleEn": "Well spotted!",
+                                "message": "Same letter — but it changes shape based on where it sits in the word.",
+                                "rewardSeeds": 10
+                            },
+                            "wrongFeedback": {
+                                "titleEn": "Look carefully!",
+                                "titleSub": "Check the start of بَيْتٌ and the end of كَتَبَ.",
+                                "message": "The letter ب appears at the start of بَيْتٌ and at the end of كَتَبَ."
+                            }
+                        },
+                        {
+                            "kind": "endingsReveal",
+                            "id": "what-is-qaida-reveal",
+                            "progress": 0.18,
+                            "progressRevealed": 0.23,
+                            "headline": {
+                                "title": "Same letter, different shapes!",
+                                "subtitle": "Position changes the form."
+                            },
+                            "revealCard": {
+                                "tapLabel": "What is the Qa'ida?",
+                                "tapHint": "Tap to Reveal",
+                                "body": "The Qa'ida (الْقَاعِدَةُ) is your foundation for reading Arabic — learning the 28 letters, how they change shape, and how they join together to form words."
+                            },
+                            "sentences": [
+                                {
+                                    "id": "sentence-a",
+                                    "arabic": "بَيْتٌ",
+                                    "arabicSegments": [
+                                        {
+                                            "text": "بَ",
+                                            "color": "highlightAlt"
+                                        },
+                                        {
+                                            "text": "يْتٌ",
+                                            "color": "default"
+                                        }
+                                    ],
+                                    "transliteration": "baytun",
+                                    "translation": "A house — ب at the start.",
+                                    "audioKey": "sentence-a"
+                                },
+                                {
+                                    "id": "sentence-b",
+                                    "arabic": "كَتَبَ",
+                                    "arabicSegments": [
+                                        {
+                                            "text": "كَتَ",
+                                            "color": "default"
+                                        },
+                                        {
+                                            "text": "بَ",
+                                            "color": "highlightAlt"
+                                        }
+                                    ],
+                                    "transliteration": "kataba",
+                                    "translation": "He wrote — ب at the end.",
+                                    "audioKey": "sentence-b"
+                                }
+                            ],
+                            "footerInsight": {
+                                "message": "Once you know a letter's core shape, you can spot it anywhere — at the start, middle, or end of a word.",
+                                "rewardSeeds": 5
+                            }
+                        },
+                        {
+                            "kind": "tapEndings",
+                            "id": "what-is-qaida-letters",
+                            "progress": 0.38,
+                            "headline": {
+                                "title": "Meet three Arabic letters",
+                                "subtitle": "tap each to see a word it starts"
+                            },
+                            "tapPrompt": "Tap each letter:",
+                            "example": {
+                                "id": "ba-example",
+                                "arabic": "بَيْتٌ",
+                                "arabicSegments": [
+                                    {
+                                        "text": "بَ",
+                                        "color": "endingBadge"
+                                    },
+                                    {
+                                        "text": "يْتٌ",
+                                        "color": "default"
+                                    }
+                                ],
+                                "transliteration": "baytun",
+                                "translation": "A house.",
+                                "audioKey": "ba-example"
+                            },
+                            "endings": [
+                                {
+                                    "id": "ba-letter",
+                                    "symbol": "بَ",
+                                    "symbolColor": "default",
+                                    "arabicLabel": "بَاء",
+                                    "transliteration": "bā'",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "بَ",
+                                                "color": "highlight"
+                                            },
+                                            {
+                                                "text": "يْتٌ",
+                                                "color": "default"
+                                            }
+                                        ],
+                                        "transliteration": "baytun",
+                                        "translation": "A house."
+                                    }
+                                },
+                                {
+                                    "id": "ain-letter",
+                                    "symbol": "عَ",
+                                    "symbolColor": "muted",
+                                    "arabicLabel": "عَيْن",
+                                    "transliteration": "'ayn",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "عِ",
+                                                "color": "highlight"
+                                            },
+                                            {
+                                                "text": "لْمٌ",
+                                                "color": "default"
+                                            }
+                                        ],
+                                        "transliteration": "'ilmun",
+                                        "translation": "Knowledge."
+                                    }
+                                },
+                                {
+                                    "id": "noon-letter",
+                                    "symbol": "نُ",
+                                    "symbolColor": "muted",
+                                    "arabicLabel": "نُون",
+                                    "transliteration": "nūn",
+                                    "preview": {
+                                        "arabicSegments": [
+                                            {
+                                                "text": "نُ",
+                                                "color": "highlight"
+                                            },
+                                            {
+                                                "text": "ورٌ",
+                                                "color": "default"
+                                            }
+                                        ],
+                                        "transliteration": "nūrun",
+                                        "translation": "Light."
+                                    }
+                                }
+                            ],
+                            "footerInsight": {
+                                "titleAr": "بَارَكَ اللهُ فِيكَ!",
+                                "message": "28 letters — that's all you need to read every word in the Arabic language and the Qur'an!",
+                                "rewardSeeds": 15
+                            }
+                        },
+                        {
+                            "kind": "whyNahw",
+                            "id": "what-is-qaida-why",
+                            "progress": 0.52,
+                            "question": "Why do you think learning to read Arabic is important?",
+                            "options": [
+                                {
+                                    "id": "quran",
+                                    "label": "To read the Qur'an directly",
+                                    "correct": false,
+                                    "icon": "quran"
+                                },
+                                {
+                                    "id": "connect",
+                                    "label": "To connect with Islamic texts",
+                                    "correct": false,
+                                    "icon": "lightbulb"
+                                },
+                                {
+                                    "id": "words",
+                                    "label": "To understand daily words",
+                                    "correct": false,
+                                    "icon": "shield"
+                                },
+                                {
+                                    "id": "all",
+                                    "label": "All of the above",
+                                    "correct": true,
+                                    "icon": "all"
+                                }
+                            ],
+                            "ayahVerseKey": "96:1",
+                            "feedback": {
+                                "titleAr": "جَمِيلٌ!",
+                                "titleEn": "Beautiful!",
+                                "message": "Reading Arabic opens a door that never closes — to the Qur'an and to the heart of this language",
+                                "rewardSeeds": 10
+                            }
+                        },
+                        {
+                            "kind": "reflect",
+                            "id": "what-is-qaida-reflect",
+                            "progress": 0.65,
+                            "title": "Think for a moment...",
+                            "prompt": "Every great reader started with their very first letter.\n\nHow do you feel about beginning this journey with Arabic?",
+                            "inputPlaceholder": "Write your thoughts...",
+                            "minChars": 3,
+                            "feedback": {
+                                "titleAr": "جَمِيلٌ!",
+                                "titleEn": "Beautiful!",
+                                "message": "Reflecting helps knowledge take root in the heart!",
+                                "rewardSeeds": 10
+                            }
+                        },
+                        {
+                            "kind": "lessonComplete",
+                            "id": "what-is-qaida-complete",
+                            "lessonNumber": 1,
+                            "title": "Masha'Allah!",
+                            "subtitle": "You've completed Lesson 1!",
+                            "learnedTitle": "Today you learned...",
+                            "learned": [
+                                "Arabic has 28 letters",
+                                "Letters change shape by position",
+                                "Qa'ida builds the foundation"
+                            ],
+                            "canNowTitle": "You can now...",
+                            "canNow": [
+                                "Spot the letter ب in words",
+                                "Name your first three letters"
+                            ],
+                            "rewards": {
+                                "totalSeeds": 50,
+                                "reflectionsSaved": 1,
+                                "streakMaintained": true,
+                                "streakMessageAr": "مَاشَاءَ اللهُ!"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "num": 2,
+                    "title": "Single letters",
+                    "titleAr": "الْحُرُوفُ الْمُفْرَدَةُ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Single letters (الْحُرُوفُ الْمُفْرَدَةُ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         },
         {
-          "num": 2,
-          "title": "Single letters",
-          "titleAr": "الْحُرُوفُ الْمُفْرَدَةُ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Single letters (الْحُرُوفُ الْمُفْرَدَةُ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    },
-    {
-      "num": "1",
-      "titleEn": "Vowels (Harakat)",
-      "titleAr": "الْحَرَكَاتُ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
+            "num": "1",
+            "titleEn": "Vowels (Harakat)",
+            "titleAr": "الْحَرَكَاتُ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Fatha",
+                    "titleAr": "الْفَتْحَةُ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Fatha (الْفَتْحَةُ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
+        },
         {
-          "num": 1,
-          "title": "Fatha",
-          "titleAr": "الْفَتْحَةُ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Fatha (الْفَتْحَةُ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    },
-    {
-      "num": "2",
-      "titleEn": "Joined letters",
-      "titleAr": "الْحُرُوفُ الْمُتَّصِلَةُ",
-      "tag": "Beginner",
-      "tagColor": "#60a85b",
-      "leafIntermediate": false,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
+            "num": "2",
+            "titleEn": "Joined letters",
+            "titleAr": "الْحُرُوفُ الْمُتَّصِلَةُ",
+            "tag": "Beginner",
+            "tagColor": "#60a85b",
+            "leafIntermediate": false,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Ba → Ta",
+                    "titleAr": "مِنْ بَاءٍ إِلَى تَاءٍ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Ba → Ta (مِنْ بَاءٍ إِلَى تَاءٍ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
+        },
         {
-          "num": 1,
-          "title": "Ba → Ta",
-          "titleAr": "مِنْ بَاءٍ إِلَى تَاءٍ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Ba → Ta (مِنْ بَاءٍ إِلَى تَاءٍ). Guided steps and quick checks help you apply what you learn."
+            "num": "3",
+            "titleEn": "Short words",
+            "titleAr": "الْكَلِمَاتُ الْقَصِيرَةُ",
+            "tag": "Intermediate",
+            "tagColor": "#ff8c1a",
+            "leafIntermediate": true,
+            "iconBg": "#d5d6d6",
+            "iconRadius": 9,
+            "numColor": "#737373",
+            "arabicColor": "#737373",
+            "locked": true,
+            "active": false,
+            "lessons": [
+                {
+                    "num": 1,
+                    "title": "Two-letter blends",
+                    "titleAr": "الْوَصْلُ بَيْنَ حَرْفَيْنِ",
+                    "done": false,
+                    "estMinutes": 5,
+                    "conceptsCount": 3,
+                    "introDescription": "In this lesson: Two-letter blends (الْوَصْلُ بَيْنَ حَرْفَيْنِ). Guided steps and quick checks help you apply what you learn."
+                }
+            ]
         }
-      ]
-    },
-    {
-      "num": "3",
-      "titleEn": "Short words",
-      "titleAr": "الْكَلِمَاتُ الْقَصِيرَةُ",
-      "tag": "Intermediate",
-      "tagColor": "#ff8c1a",
-      "leafIntermediate": true,
-      "iconBg": "#d5d6d6",
-      "iconRadius": 9,
-      "numColor": "#737373",
-      "arabicColor": "#737373",
-      "locked": true,
-      "active": false,
-      "lessons": [
-        {
-          "num": 1,
-          "title": "Two-letter blends",
-          "titleAr": "الْوَصْلُ بَيْنَ حَرْفَيْنِ",
-          "done": false,
-          "estMinutes": 5,
-          "conceptsCount": 3,
-          "introDescription": "In this lesson: Two-letter blends (الْوَصْلُ بَيْنَ حَرْفَيْنِ). Guided steps and quick checks help you apply what you learn."
-        }
-      ]
-    }
-  ]
+    ]
 }
