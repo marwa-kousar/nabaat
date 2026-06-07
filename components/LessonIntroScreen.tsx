@@ -79,7 +79,7 @@ export function LessonIntroScreen({
   const [notoArLoaded] = useNotoArabic({ NotoSansArabic_500Medium, NotoSansArabic_700Bold });
 
   const theme = useMemo(() => pathThemeOf(learningPath), [learningPath]);
-  const heroSource = heroBackground ?? defaultLessonHeroBackground(learningPath);
+  const heroSource = heroBackground ?? defaultLessonHeroBackground(learningPath, unitIndex, lessonIndex);
   const descColors = useMemo(() => ({ muted: '#737373', accent: theme.primaryDark }), [theme.primaryDark]);
 
   const lesson = useMemo(() => {
