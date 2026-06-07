@@ -73,6 +73,13 @@ export async function loadGrowthPoints(): Promise<number> {
   return sumAwards(state.byLesson);
 }
 
+/** Returns the set of lesson keys (e.g. "nahw:0:0") that have been awarded. */
+export async function loadCompletedLessonKeys(): Promise<Set<string>> {
+  const state = await readAwardsState();
+  const keys = new Set(Object.keys(state.byLesson).filter((k) => k !== '__legacy__'));
+  return keys;
+}
+
 /** Clears all lesson awards and session bookkeeping; home total becomes 0. */
 export async function resetGrowthPoints(): Promise<void> {
   sessionAwardedLessons.clear();

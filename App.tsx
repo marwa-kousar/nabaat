@@ -13,8 +13,14 @@ import { LessonIntroScreen } from './components/LessonIntroScreen';
 import { ReminderScreen } from './components/ReminderScreen';
 import { SplashLayout } from './components/SplashLayout';
 import { StartScreen } from './components/StartScreen';
-import { getLessonAtIndices } from './lib/loadUnits';
-import { awardLessonSeedsFirstTime, initializeGrowthPoints } from './lib/growthPoints';
+import { getLessonAtIndices, getUnitsForPathSync } from './lib/loadUnits';
+import {
+  awardLessonSeedsFirstTime,
+  initializeGrowthPoints,
+  lessonCompletionKey,
+  loadCompletedLessonKeys,
+} from './lib/growthPoints';
+import type { UserResumeSnapshot } from './components/HomeScreen';
 import { ensureAppImagesPreloaded } from './lib/preloadAppImages';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -38,6 +44,7 @@ export default function App() {
   const [homeInitialTab, setHomeInitialTab] = useState<HomeTabKey>('home');
   const [growthPoints, setGrowthPoints] = useState(0);
   const [growthPointsReady, setGrowthPointsReady] = useState(false);
+  const [completedLessonKeys, setCompletedLessonKeys] = useState<Set<string>>(new Set());
   const startOpacity = useRef(new Animated.Value(0)).current;
   const chooseOpacity = useRef(new Animated.Value(0)).current;
   const goalOpacity = useRef(new Animated.Value(0)).current;
@@ -122,15 +129,19 @@ export default function App() {
 
   const goToHomeFromLesson = useCallback(
     (lessonSeeds: number, lessonKey: string) => {
-      void awardLessonSeedsFirstTime(lessonKey, lessonSeeds).then(({ total }) => setGrowthPoints(total));
+      void awardLessonSeedsFirstTime(lessonKey, lessonSeeds).then(({ total }) => {
+        setGrowthPoints(total);
+        setCompletedLessonKeys((prev) => new Set(prev).add(lessonKey));
+      });
       goToHome('home');
     },
     [goToHome],
   );
 
   useEffect(() => {
-    void initializeGrowthPoints().then((total) => {
+    void Promise.all([initializeGrowthPoints(), loadCompletedLessonKeys()]).then(([total, keys]) => {
       setGrowthPoints(total);
+      setCompletedLessonKeys(keys);
       setGrowthPointsReady(true);
     });
   }, []);
@@ -170,6 +181,21 @@ export default function App() {
     if (!hit?.lesson) return { titleEn: 'Lesson', titleAr: undefined as string | undefined };
     return { titleEn: hit.lesson.title, titleAr: hit.lesson.titleAr };
   }, [selectedLearningPath, lessonFocus.unitIndex, lessonFocus.lessonIndex]);
+
+  const userResume = useMemo((): UserResumeSnapshot => {
+    const units = getUnitsForPathSync(selectedLearningPath);
+    const unit = units[0];
+    if (!unit) return { unitIndex: 0, lessonIndex: 0, progressPercent: 0 };
+    const total = unit.lessons.length;
+    const completedCount = unit.lessons.filter((_, idx) =>
+      completedLessonKeys.has(lessonCompletionKey(selectedLearningPath, 0, idx)),
+    ).length;
+    const progressPercent = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+    const nextIndex = unit.lessons.findIndex(
+      (_, idx) => !completedLessonKeys.has(lessonCompletionKey(selectedLearningPath, 0, idx)),
+    );
+    return { unitIndex: 0, lessonIndex: nextIndex >= 0 ? nextIndex : total - 1, progressPercent };
+  }, [selectedLearningPath, completedLessonKeys]);
 
   const rootBg =
     screen === 'splash'
@@ -233,7 +259,9 @@ export default function App() {
             <HomeScreen
               initialPath={selectedLearningPath}
               onActivePathChange={setSelectedLearningPath}
-              isNewUser
+              isNewUser={completedLessonKeys.size === 0}
+              userResume={userResume}
+              streakCount={0}
               growthPoints={growthPointsReady ? growthPoints : 0}
               initialTab={homeInitialTab}
               onBeginLesson={goToLessonIntro}
